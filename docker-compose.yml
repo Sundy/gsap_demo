@@ -1,0 +1,37 @@
+# Docker Compose配置文件
+version: '3.8'
+
+services:
+  # Python代码执行服务
+  python-executor:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./temp:/app/temp
+    environment:
+      - FLASK_ENV=development
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # 前端静态文件服务
+  frontend:
+    image: python:3.11-slim
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python3 -m http.server 8000
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  temp:
+    driver: local

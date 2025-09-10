@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小熊学编程 - Python循环大冒险</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Monaco Editor CDN -->
+    <script src="https://unpkg.com/monaco-editor@0.44.0/min/vs/loader.js"></script>
+</head>
+<body>
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 标题区域 -->
+        <header class="header">
+            <h1 class="title">🐻 小熊学编程 - Python循环大冒险 🍯</h1>
+            <p class="subtitle">和小熊一起学习Python的for循环和while循环吧！</p>
+        </header>
+
+        <!-- 故事场景区域 -->
+        <div class="story-scene">
+            <!-- 小熊角色 -->
+            <div class="character bear" id="bear">
+                🐻
+            </div>
+            
+            <!-- 蜂蜜罐 -->
+            <div class="honey-jars">
+                <div class="honey-jar" data-index="0">🍯</div>
+                <div class="honey-jar" data-index="1">🍯</div>
+                <div class="honey-jar" data-index="2">🍯</div>
+                <div class="honey-jar" data-index="3">🍯</div>
+                <div class="honey-jar" data-index="4">🍯</div>
+            </div>
+        </div>
+
+        <!-- 课程内容区域 -->
+        <div class="lesson-content">
+            <!-- 故事文本 -->
+            <div class="story-text" id="storyText">
+                <h2>🌟 什么是for循环？</h2>
+                <div class="concept-explanation">
+                    <h3>📖 语法概念</h3>
+                    <p><strong>for循环</strong>就像是给小熊制定一个"重复做事情"的计划！</p>
+                    <p>🔄 <strong>类比：</strong>就像妈妈告诉小熊："你要把这5个蜂蜜罐一个一个吃完"</p>
+                    <p>📝 <strong>语法结构：</strong></p>
+                    <div class="syntax-box">
+                        <code>for 变量 in 范围:<br>&nbsp;&nbsp;&nbsp;&nbsp;要重复做的事情</code>
+                    </div>
+                </div>
+                
+                <h3>🐻 小熊的故事</h3>
+                <p>小熊饿了，它发现了5个蜂蜜罐！但是小熊想要一个一个地吃掉它们。</p>
+                <p>让我们用Python的for循环来帮助小熊按顺序吃蜂蜜吧！</p>
+            </div>
+
+            <!-- 代码展示区域 -->
+            <div class="code-display" id="codeDisplay">
+                <h3>📝 Python代码示例</h3>
+                <div class="code-explanation">
+                    <p>🔍 <strong>代码解析：</strong></p>
+                    <ul>
+                        <li><code>for i in range(5):</code> - 让i从0到4，总共循环5次</li>
+                        <li><code>range(5)</code> - 就像给小熊准备5个编号的蜂蜜罐</li>
+                        <li><code>print(...)</code> - 告诉我们小熊在做什么</li>
+                    </ul>
+                </div>
+                <pre class="code-block" id="codeBlock">
+# 🐻 小熊吃蜂蜜的for循环示例
+# 第一步：告诉小熊要吃几个蜂蜜罐
+for i in range(5):  # i会依次变成 0, 1, 2, 3, 4
+    # 第二步：小熊吃掉一个蜂蜜罐
+    print(f"小熊吃掉了第{i+1}个蜂蜜罐 🍯")
+    # 小熊很开心！每吃一个就会说一句话
+                </pre>
+            </div>
+
+            <!-- 控制按钮 -->
+            <div class="controls">
+                <button class="btn btn-primary" id="startBtn">🎬 开始动画</button>
+                <button class="btn btn-secondary" id="resetBtn">🔄 重新开始</button>
+                <button class="btn btn-info" id="nextLessonBtn">➡️ 下一课：while循环</button>
+                <button class="btn btn-success" id="practiceBtn">✏️ 在线练习</button>
+            </div>
+        </div>
+
+        <!-- 输出区域 -->
+        <div class="output-area" id="outputArea">
+            <h3>🖥️ 程序输出</h3>
+            <div class="console" id="console">
+                <p class="console-prompt">>>> 点击"开始动画"看看会发生什么！</p>
+            </div>
+        </div>
+
+        <!-- 在线编程练习区域（隐藏） -->
+        <div class="practice-area hidden" id="practiceArea">
+            <div class="practice-header">
+                <h2>✏️ 在线编程练习</h2>
+                <p>现在轮到你来编写代码了！完成下面的练习题，让小熊按照你的指令行动。</p>
+            </div>
+
+            <div class="practice-content">
+                <!-- 练习题目区域 -->
+                <div class="exercise-panel">
+                    <div class="exercise-selector">
+                        <h3>📚 选择练习题目</h3>
+                        <div class="exercise-tabs">
+                            <button class="exercise-tab active" data-exercise="for1">for循环练习1</button>
+                            <button class="exercise-tab" data-exercise="for2">for循环练习2</button>
+                            <button class="exercise-tab" data-exercise="while1">while循环练习1</button>
+                        </div>
+                    </div>
+
+                    <div class="exercise-content" id="exerciseContent">
+                        <!-- for循环练习1 -->
+                        <div class="exercise" id="exercise-for1">
+                            <h4>🍯 练习1：帮小熊吃3个蜂蜜罐</h4>
+                            <p><strong>任务：</strong>使用for循环让小熊吃掉3个蜂蜜罐，每吃一个就说一句话。</p>
+                            <p><strong>提示：</strong>使用 <code>range(3)</code> 来循环3次</p>
+                            <div class="expected-output">
+                                <h5>期望输出：</h5>
+                                <pre>小熊吃掉了第1个蜂蜜罐 🍯
+小熊吃掉了第2个蜂蜜罐 🍯
+小熊吃掉了第3个蜂蜜罐 🍯</pre>
+                            </div>
+                        </div>
+
+                        <!-- for循环练习2 -->
+                        <div class="exercise hidden" id="exercise-for2">
+                            <h4>🌟 练习2：小熊数星星</h4>
+                            <p><strong>任务：</strong>使用for循环让小熊数从1到5的星星。</p>
+                            <p><strong>提示：</strong>使用 <code>range(1, 6)</code> 来从1数到5</p>
+                            <div class="expected-output">
+                                <h5>期望输出：</h5>
+                                <pre>小熊数到了第1颗星星 ⭐
+小熊数到了第2颗星星 ⭐
+小熊数到了第3颗星星 ⭐
+小熊数到了第4颗星星 ⭐
+小熊数到了第5颗星星 ⭐</pre>
+                            </div>
+                        </div>
+
+                        <!-- while循环练习1 -->
+                        <div class="exercise hidden" id="exercise-while1">
+                            <h4>🎯 练习3：小熊找够5个苹果</h4>
+                            <p><strong>任务：</strong>使用while循环让小熊一直找苹果，直到找到5个为止。</p>
+                            <p><strong>提示：</strong>设置一个计数器，当计数器小于5时继续循环</p>
+                            <div class="expected-output">
+                                <h5>期望输出：</h5>
+                                <pre>小熊找到了第1个苹果 🍎
+小熊找到了第2个苹果 🍎
+小熊找到了第3个苹果 🍎
+小熊找到了第4个苹果 🍎
+小熊找到了第5个苹果 🍎
+小熊找够了苹果！</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 代码编辑器区域 -->
+                <div class="editor-panel">
+                    <h3>💻 代码编辑器</h3>
+                    <div class="editor-container">
+                        <div class="editor-toolbar">
+                            <button class="btn btn-small btn-primary" id="runCodeBtn">▶️ 运行代码</button>
+                            <button class="btn btn-small btn-secondary" id="resetCodeBtn">🔄 重置代码</button>
+                            <button class="btn btn-small btn-info" id="hintBtn">💡 提示</button>
+                        </div>
+                        <div class="monaco-editor-container" id="monacoEditorContainer"></div>
+                    </div>
+
+                    <!-- 运行结果区域 -->
+                    <div class="result-area">
+                        <h4>🖥️ 运行结果</h4>
+                        <div class="result-console" id="resultConsole">
+                            <p class="console-prompt">>>> 点击"运行代码"来执行你的程序</p>
+                        </div>
+                        <div class="result-status" id="resultStatus"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="practice-controls">
+                <button class="btn btn-secondary" id="backToLessonBtn">⬅️ 返回课程</button>
+                <button class="btn btn-success" id="checkAnswerBtn">✅ 检查答案</button>
+                <button class="btn btn-info" id="nextExerciseBtn">➡️ 下一题</button>
+            </div>
+        </div>
+
+        <!-- while循环课程（隐藏） -->
+        <div class="while-lesson hidden" id="whileLesson">
+            <div class="story-text">
+                <h2>🌟 什么是while循环？</h2>
+                <div class="concept-explanation">
+                    <h3>📖 语法概念</h3>
+                    <p><strong>while循环</strong>就像是给小熊一个"条件任务"！</p>
+                    <p>🔄 <strong>类比：</strong>就像妈妈说："小熊，你要一直找蜂蜜，直到找够3个为止"</p>
+                    <p>📝 <strong>语法结构：</strong></p>
+                    <div class="syntax-box">
+                        <code>while 条件为真:<br>&nbsp;&nbsp;&nbsp;&nbsp;要重复做的事情</code>
+                    </div>
+                    <p>💡 <strong>区别：</strong>for循环知道要做几次，while循环要看条件什么时候不满足！</p>
+                </div>
+                
+                <h3>🐻 小熊的新故事</h3>
+                <p>小熊吃完了蜂蜜，但还是很饿！它决定继续寻找蜂蜜，直到找到足够的为止。</p>
+                <p>这时候我们需要用while循环！</p>
+            </div>
+
+            <div class="code-display">
+                <h3>📝 while循环代码示例</h3>
+                <div class="code-explanation">
+                    <p>🔍 <strong>代码解析：</strong></p>
+                    <ul>
+                        <li><code>honey_count = 0</code> - 小熊开始时没有蜂蜜</li>
+                        <li><code>while honey_count < 3:</code> - 只要蜂蜜少于3个就继续找</li>
+                        <li><code>honey_count += 1</code> - 找到一个蜂蜜，数量加1</li>
+                    </ul>
+                </div>
+                <pre class="code-block" id="whileCodeBlock">
+# 🐻 小熊继续寻找蜂蜜的while循环示例
+# 第一步：小熊开始时没有蜂蜜
+honey_count = 0  # 蜂蜜计数器，从0开始
+
+# 第二步：设定条件 - 蜂蜜不够就继续找
+while honey_count < 3:  # 当蜂蜜少于3个时，继续循环
+    # 第三步：小熊找到了一个蜂蜜
+    print(f"小熊找到了蜂蜜！现在有{honey_count + 1}个")
+    honey_count += 1  # 蜂蜜数量加1
+    
+# 第四步：条件不满足时，循环结束
+print("小熊终于吃饱了！😊")
+                </pre>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="startWhileBtn">🎬 开始while循环动画</button>
+                <button class="btn btn-secondary" id="backToForBtn">⬅️ 回到for循环</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
