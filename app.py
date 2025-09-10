@@ -10,11 +10,11 @@ import sys
 import subprocess
 import tempfile
 import time
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import threading
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='.', static_url_path='')
 CORS(app)  # 允许跨域请求
 
 # 配置
@@ -45,8 +45,7 @@ def execute_python_code(code, timeout=MAX_EXECUTION_TIME):
             [sys.executable, temp_file],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True,
-            timeout=timeout
+            text=True
         )
         
         stdout, stderr = process.communicate(timeout=timeout)
@@ -101,6 +100,14 @@ def execute_python_code(code, timeout=MAX_EXECUTION_TIME):
             'stderr': '',
             'execution_time': 0
         }
+
+
+@app.route('/')
+def index():
+    """
+    提供主页面
+    """
+    return send_from_directory('.', 'index.html')
 
 
 @app.route('/api/execute', methods=['POST'])
@@ -186,8 +193,8 @@ if __name__ == '__main__':
     os.makedirs('temp', exist_ok=True)
     
     print("🐻 小熊学Python代码执行服务启动中...")
-    print("📡 API地址: http://localhost:5000")
-    print("🔍 健康检查: http://localhost:5000/api/health")
-    print("⚡ 代码执行: POST http://localhost:5000/api/execute")
-    
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    print("📡 API地址: http://localhost:8000")
+    print("🔍 健康检查: http://localhost:8000/api/health")
+    print("⚡ 代码执行: POST http://localhost:8000/api/execute")
+
+    app.run(host='0.0.0.0', port=8000, debug=True)

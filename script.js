@@ -17,18 +17,49 @@ const whileLesson = document.getElementById('whileLesson');
 const startWhileBtn = document.getElementById('startWhileBtn');
 const backToForBtn = document.getElementById('backToForBtn');
 
+// 音频控制元素
+const voiceToggle = document.getElementById('voiceToggle');
+const soundToggle = document.getElementById('soundToggle');
+const speakIntroBtn = document.getElementById('speakIntro');
+const voiceSettingsBtn = document.getElementById('voiceSettings');
+const voiceSettingsPanel = document.getElementById('voiceSettingsPanel');
+const voiceSelect = document.getElementById('voiceSelect');
+const testVoiceBtn = document.getElementById('testVoice');
+const closeSettingsBtn = document.getElementById('closeSettings');
+const currentVoiceName = document.getElementById('currentVoiceName');
+const currentVoiceLang = document.getElementById('currentVoiceLang');
+
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
-    initializeMonacoEditor();
-    initializeAnimations();
-    setupEventListeners();
-    showWelcomeAnimation();
+    // 延迟初始化，确保GSAP库完全加载
+    setTimeout(function() {
+        if (typeof gsap !== 'undefined') {
+            initializeMonacoEditor();
+            initializeAnimations();
+            setupEventListeners();
+            showWelcomeAnimation();
+        } else {
+            console.error('GSAP库加载失败，请刷新页面重试');
+            // 再次尝试加载
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/gsap@3.12.2/dist/gsap.min.js';
+            script.onload = function() {
+                initializeMonacoEditor();
+                initializeAnimations();
+                setupEventListeners();
+                showWelcomeAnimation();
+            };
+            document.head.appendChild(script);
+        }
+    }, 100);
 });
 
 /**
  * 初始化GSAP动画设置
  */
 function initializeAnimations() {
+    if (!checkGSAP()) return;
+    
     // 设置初始状态
     gsap.set(bear, { x: 0, y: 0, rotation: 0 });
     gsap.set(honeyJars, { scale: 1, opacity: 1, rotation: 0 });
@@ -56,18 +87,116 @@ function setupEventListeners() {
     bear.addEventListener('click', bearDance);
     
     // 在线练习按钮事件
-    document.getElementById('practiceBtn').addEventListener('click', function() {
-        document.querySelector('.lesson-content').classList.add('hidden');
-        document.getElementById('whileLesson').classList.add('hidden');
-        document.getElementById('practiceArea').classList.remove('hidden');
-        initializePractice();
-    });
+    const practiceBtn = document.getElementById('practiceBtn');
+    if (practiceBtn) {
+        practiceBtn.addEventListener('click', function() {
+            document.querySelector('.lesson-content').classList.add('hidden');
+            document.getElementById('whileLesson').classList.add('hidden');
+            document.getElementById('practiceArea').classList.remove('hidden');
+            initializePractice();
+        });
+    }
 
     // 返回课程按钮事件
-    document.getElementById('backToLessonBtn').addEventListener('click', function() {
-        document.getElementById('practiceArea').classList.add('hidden');
-        document.querySelector('.lesson-content').classList.remove('hidden');
-    });
+    const backToLessonBtn = document.getElementById('backToLessonBtn');
+    if (backToLessonBtn) {
+        backToLessonBtn.addEventListener('click', function() {
+            document.getElementById('practiceArea').classList.add('hidden');
+            document.querySelector('.lesson-content').classList.remove('hidden');
+        });
+    }
+    
+    // 音频控制按钮事件
+    setupAudioControls();
+}
+
+/**
+ * 设置音频控制功能
+ */
+function setupAudioControls() {
+    // 语音开关
+    if (voiceToggle) {
+        voiceToggle.addEventListener('click', function() {
+            if (window.audioManager) {
+                const isEnabled = !window.audioManager.voiceEnabled;
+                window.audioManager.setVoiceEnabled(isEnabled);
+                
+                if (isEnabled) {
+                    voiceToggle.classList.remove('voice-disabled');
+                    voiceToggle.classList.add('voice-enabled');
+                    voiceToggle.innerHTML = '🔊 语音';
+                } else {
+                    voiceToggle.classList.remove('voice-enabled');
+                    voiceToggle.classList.add('voice-disabled');
+                    voiceToggle.innerHTML = '🔇 语音';
+                }
+            }
+        });
+    }
+    
+    // 音效开关
+    if (soundToggle) {
+        soundToggle.addEventListener('click', function() {
+            if (window.audioManager) {
+                const isEnabled = !window.audioManager.soundEnabled;
+                window.audioManager.setSoundEnabled(isEnabled);
+                
+                if (isEnabled) {
+                    soundToggle.classList.remove('sound-disabled');
+                    soundToggle.classList.add('sound-enabled');
+                    soundToggle.innerHTML = '🎵 音效';
+                } else {
+                    soundToggle.classList.remove('sound-enabled');
+                    soundToggle.classList.add('sound-disabled');
+                    soundToggle.innerHTML = '🔇 音效';
+                }
+            }
+        });
+    }
+    
+    // 播放介绍
+    if (speakIntroBtn) {
+        speakIntroBtn.addEventListener('click', function() {
+            speakIntroduction();
+        });
+    }
+    
+    // 语音设置按钮
+    if (voiceSettingsBtn) {
+        voiceSettingsBtn.addEventListener('click', function() {
+            toggleVoiceSettings();
+        });
+    }
+    
+    // 关闭设置按钮
+    if (closeSettingsBtn) {
+        closeSettingsBtn.addEventListener('click', function() {
+            hideVoiceSettings();
+        });
+    }
+    
+    // 测试语音按钮
+    if (testVoiceBtn) {
+        testVoiceBtn.addEventListener('click', function() {
+            if (window.audioManager) {
+                window.audioManager.testVoice();
+            }
+        });
+    }
+    
+    // 语音选择下拉框
+    if (voiceSelect) {
+        voiceSelect.addEventListener('change', function() {
+            const selectedVoice = this.value;
+            if (selectedVoice && window.audioManager) {
+                window.audioManager.switchVoice(selectedVoice);
+                updateVoiceInfo();
+            }
+        });
+    }
+    
+    // 初始化语音设置
+    initializeVoiceSettings();
 
     // 初始化在线练习功能
     initializePracticeFeatures();
@@ -77,6 +206,52 @@ function setupEventListeners() {
  * 显示欢迎动画
  */
 function showWelcomeAnimation() {
+    if (!checkGSAP()) return;
+    
+    const tl = gsap.timeline();
+    
+    // 小熊欢迎动画
+    tl.from(bear, {
+        scale: 0,
+        rotation: 360,
+        duration: 1,
+        ease: 'bounce.out'
+    })
+    // 蜂蜜罐依次出现
+    .from(honeyJars, {
+        y: -50,
+        opacity: 0,
+        duration: 0.5,
+        stagger: 0.2,
+        ease: 'power2.out'
+    }, '-=0.5')
+    // 标题动画
+    .from('.title', {
+        y: -30,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power2.out'
+    }, '-=1')
+    // 副标题动画
+    .from('.subtitle', {
+        y: 20,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power2.out'
+    }, '-=0.4');
+}
+
+/**
+ * 庆祝动画
+ */
+function celebrateAnimation() {
+    if (!checkGSAP()) return;
+    
+    // 播放庆祝音效
+    if (window.audioManager) {
+        window.audioManager.playSound('celebration');
+    }
+    
     const tl = gsap.timeline();
     
     tl.from('.header', { y: -100, opacity: 0, duration: 1, ease: 'bounce.out' })
@@ -338,7 +513,7 @@ async function runPythonCode() {
         resultStatus.textContent = '代码执行中...';
         
         // 调用后端API执行代码
-        const response = await fetch('http://localhost:5001/api/execute', {
+        const response = await fetch('http://localhost:8000/api/execute', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -765,6 +940,11 @@ function clearResult() {
  * 小熊挥手动画
  */
 function bearWave() {
+    // 播放移动音效
+    if (window.audioManager) {
+        window.audioManager.playSound('bear-move');
+    }
+    
     gsap.to(bear, {
         rotation: 15,
         duration: 0.3,
@@ -778,7 +958,12 @@ function bearWave() {
  * 小熊跳舞动画
  */
 function bearDance() {
-    if (isAnimating) return;
+    if (!checkGSAP()) return;
+    
+    // 播放点击音效
+    if (window.audioManager) {
+        window.audioManager.playSound('click');
+    }
     
     const tl = gsap.timeline();
     tl.to(bear, { y: -20, duration: 0.2, ease: 'power2.out' })
@@ -793,8 +978,18 @@ function bearDance() {
  */
 function startForLoopAnimation() {
     if (isAnimating) return;
+    if (!checkGSAP()) return;
     
     isAnimating = true;
+    
+    // 播放开始音效和语音解说
+    if (window.audioManager) {
+        window.audioManager.playSound('click');
+        setTimeout(() => {
+            speakForLoopExplanation();
+        }, 1000);
+    }
+    
     currentStep = 0;
     
     // 清空控制台
@@ -823,7 +1018,13 @@ function startForLoopAnimation() {
         .to(bear, { 
             x: jar.offsetLeft - 100, 
             duration: 0.8, 
-            ease: 'power2.inOut' 
+            ease: 'power2.inOut',
+            onStart: () => {
+                // 播放移动音效
+                if (window.audioManager) {
+                    window.audioManager.playSound('bear-move');
+                }
+            }
         })
         .to(bear, { 
             rotation: 360, 
@@ -862,6 +1063,11 @@ function eatHoney(index) {
     const jar = honeyJars[index];
     if (jar.classList.contains('eaten')) return;
     
+    // 播放吃蜂蜜音效
+    if (window.audioManager) {
+        window.audioManager.playSound('honey-eat');
+    }
+    
     const tl = gsap.timeline();
     
     tl.to(bear, { 
@@ -889,10 +1095,22 @@ function eatHoney(index) {
 }
 
 /**
+ * 检查GSAP是否可用
+ */
+function checkGSAP() {
+    if (typeof gsap === 'undefined') {
+        console.error('GSAP库未加载，请检查网络连接');
+        return false;
+    }
+    return true;
+}
+
+/**
  * 重置动画
  */
 function resetAnimation() {
     if (isAnimating) return;
+    if (!checkGSAP()) return;
     
     // 重置小熊位置
     gsap.set(bear, { x: 0, y: 0, rotation: 0 });
@@ -968,9 +1186,18 @@ function showForLesson() {
  */
 function startWhileLoopAnimation() {
     if (isAnimating) return;
+    if (!checkGSAP()) return;
     
     isAnimating = true;
     let honeyCount = 0;
+    
+    // 播放开始音效和语音解说
+    if (window.audioManager) {
+        window.audioManager.playSound('click');
+        setTimeout(() => {
+            speakWhileLoopExplanation();
+        }, 1000);
+    }
     
     // 清空控制台并添加while循环输出
     clearConsole();
@@ -1191,6 +1418,171 @@ function addConsoleOutput(text) {
  */
 function clearConsole() {
     consoleElement.innerHTML = '';
+}
+
+/**
+ * 播放课程介绍语音
+ */
+function speakIntroduction() {
+    if (!window.audioManager) return;
+    
+    const introTexts = [
+        "欢迎来到小熊学编程！",
+        "今天我们要学习Python的for循环。",
+        "for循环就像是给小熊制定一个重复做事情的计划。",
+        "比如说，小熊要把5个蜂蜜罐一个一个吃完。",
+        "点击开始按钮，让我们一起看看小熊是怎么做的吧！"
+    ];
+    
+    window.audioManager.speakQueue(introTexts);
+}
+
+/**
+ * 为动画添加语音解说
+ */
+function speakForLoopExplanation() {
+    if (!window.audioManager) return;
+    
+    const explanationTexts = [
+        "现在小熊开始执行for循环了。",
+        "for i in range(5)的意思是，让i从0开始，一直到4。",
+        "每次循环，小熊都会走向一个蜂蜜罐，然后吃掉它。",
+        "这就是for循环的魅力，可以让我们重复执行相同的操作！"
+    ];
+    
+    window.audioManager.speakQueue(explanationTexts);
+}
+
+/**
+ * 为while循环添加语音解说
+ */
+function speakWhileLoopExplanation() {
+    if (!window.audioManager) return;
+    
+    const explanationTexts = [
+        "现在我们来学习while循环。",
+        "while循环会在条件为真的时候一直执行。",
+        "小熊会一直吃蜂蜜，直到没有蜂蜜为止。",
+        "这就是while循环的特点，根据条件来决定是否继续执行！"
+    ];
+    
+    window.audioManager.speakQueue(explanationTexts);
+}
+
+/**
+ * 初始化语音设置
+ */
+function initializeVoiceSettings() {
+    // 延迟初始化，确保语音已加载
+    setTimeout(() => {
+        if (window.audioManager) {
+            populateVoiceSelect();
+            updateVoiceInfo();
+        }
+    }, 1000);
+}
+
+/**
+ * 填充语音选择下拉框
+ */
+function populateVoiceSelect() {
+    if (!window.audioManager || !voiceSelect) return;
+    
+    const chineseVoices = window.audioManager.getChineseVoices();
+    const allVoices = window.audioManager.speechSynthesis ? 
+        window.audioManager.speechSynthesis.getVoices() : [];
+    
+    // 清空现有选项
+    voiceSelect.innerHTML = '';
+    
+    // 添加中文语音组
+    if (chineseVoices.length > 0) {
+        const chineseGroup = document.createElement('optgroup');
+        chineseGroup.label = '中文语音';
+        
+        chineseVoices.forEach(voice => {
+            const option = document.createElement('option');
+            option.value = voice.name;
+            option.textContent = `${voice.name} (${voice.lang})`;
+            if (window.audioManager.selectedVoice && 
+                voice.name === window.audioManager.selectedVoice.name) {
+                option.selected = true;
+            }
+            chineseGroup.appendChild(option);
+        });
+        
+        voiceSelect.appendChild(chineseGroup);
+    }
+    
+    // 添加其他语音组
+    const otherVoices = allVoices.filter(voice => {
+        const lang = voice.lang.toLowerCase();
+        return !lang.includes('zh') && !lang.includes('cmn') && 
+               !lang.includes('chinese') && !voice.name.includes('Chinese');
+    });
+    
+    if (otherVoices.length > 0) {
+        const otherGroup = document.createElement('optgroup');
+        otherGroup.label = '其他语音';
+        
+        otherVoices.slice(0, 10).forEach(voice => { // 限制显示数量
+            const option = document.createElement('option');
+            option.value = voice.name;
+            option.textContent = `${voice.name} (${voice.lang})`;
+            otherGroup.appendChild(option);
+        });
+        
+        voiceSelect.appendChild(otherGroup);
+    }
+}
+
+/**
+ * 更新语音信息显示
+ */
+function updateVoiceInfo() {
+    if (!window.audioManager || !currentVoiceName || !currentVoiceLang) return;
+    
+    const voice = window.audioManager.selectedVoice;
+    if (voice) {
+        currentVoiceName.textContent = voice.name;
+        currentVoiceLang.textContent = voice.lang;
+    } else {
+        currentVoiceName.textContent = '未选择';
+        currentVoiceLang.textContent = '-';
+    }
+}
+
+/**
+ * 切换语音设置面板显示
+ */
+function toggleVoiceSettings() {
+    if (!voiceSettingsPanel) return;
+    
+    if (voiceSettingsPanel.classList.contains('hidden')) {
+        showVoiceSettings();
+    } else {
+        hideVoiceSettings();
+    }
+}
+
+/**
+ * 显示语音设置面板
+ */
+function showVoiceSettings() {
+    if (!voiceSettingsPanel) return;
+    
+    voiceSettingsPanel.classList.remove('hidden');
+    populateVoiceSelect();
+    updateVoiceInfo();
+}
+
+/**
+ * 隐藏语音设置面板
+ */
+function hideVoiceSettings() {
+    if (!voiceSettingsPanel) return;
+    
+    voiceSettingsPanel.classList.add('hidden');
 }
 
 // 页面可见性变化时暂停/恢复动画

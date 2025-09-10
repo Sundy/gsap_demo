@@ -9,7 +9,7 @@
 
 body {
     font-family: 'Comic Sans MS', cursive, sans-serif;
-    background: linear-gradient(135deg, #87CEEB 0%, #98FB98 50%, #FFE4B5 100%);
+    background: linear-gradient(135deg, #81D4E6 0%, #7DD3C0 50%, #B8E6D3 100%);
     min-height: 100vh;
     color: #2C3E50;
     overflow-x: hidden;
@@ -35,7 +35,7 @@ body {
 
 .title {
     font-size: 2.5em;
-    color: #E67E22;
+    color: #0ABAB5;
     margin-bottom: 10px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
     animation: bounce 2s infinite;
@@ -43,7 +43,7 @@ body {
 
 .subtitle {
     font-size: 1.2em;
-    color: #27AE60;
+    color: #4ECDC4;
     font-weight: bold;
 }
 
@@ -133,13 +133,13 @@ body {
 }
 
 .story-text h2 {
-    color: #E74C3C;
+    color: #0ABAB5;
     margin-bottom: 15px;
     font-size: 1.5em;
 }
 
 .story-text h3 {
-    color: #3498DB;
+    color: #4ECDC4;
     margin-bottom: 12px;
     margin-top: 20px;
     font-size: 1.3em;
@@ -153,8 +153,8 @@ body {
 
 /* 概念讲解区域 */
 .concept-explanation {
-    background: linear-gradient(135deg, #E8F6FF 0%, #F0F8FF 100%);
-    border: 2px solid #3498DB;
+    background: linear-gradient(135deg, #E0F7FA 0%, #F0FDFF 100%);
+    border: 2px solid #4ECDC4;
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 20px;
@@ -166,7 +166,7 @@ body {
     position: absolute;
     top: -10px;
     left: 15px;
-    background: #3498DB;
+    background: #4ECDC4;
     color: white;
     padding: 5px 10px;
     border-radius: 15px;
@@ -174,7 +174,7 @@ body {
 }
 
 .concept-explanation h3 {
-    color: #2980B9;
+    color: #0ABAB5;
     margin-top: 0;
     margin-bottom: 15px;
 }
@@ -613,17 +613,17 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #E74C3C, #F39C12);
+    background: linear-gradient(45deg, #0ABAB5, #4ECDC4);
     color: white;
 }
 
 .btn-secondary {
-    background: linear-gradient(45deg, #3498DB, #9B59B6);
+    background: linear-gradient(45deg, #7DD3C0, #81D4E6);
     color: white;
 }
 
 .btn-info {
-    background: linear-gradient(45deg, #27AE60, #2ECC71);
+    background: linear-gradient(45deg, #4ECDC4, #7DD3C0);
     color: white;
 }
 
@@ -646,7 +646,7 @@ body {
 }
 
 .output-area h3 {
-    color: #8E44AD;
+    color: #0ABAB5;
     margin-bottom: 15px;
     font-size: 1.3em;
 }
@@ -654,12 +654,12 @@ body {
 /* 控制台样式 */
 .console {
     background: #2C3E50;
-    color: #2ECC71;
+    color: #4ECDC4;
     padding: 20px;
     border-radius: 10px;
     font-family: 'Courier New', monospace;
     min-height: 120px;
-    border: 2px solid #27AE60;
+    border: 2px solid #0ABAB5;
 }
 
 .console-prompt {
@@ -668,7 +668,7 @@ body {
 }
 
 .console-output {
-    color: #F39C12;
+    color: #7DD3C0;
     margin: 5px 0;
     animation: typewriter 0.5s ease-in;
 }
@@ -794,4 +794,168 @@ body {
 
 .code-block .number {
     color: #BD93F9;
+}
+
+/* 音频控制面板样式 */
+.audio-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.audio-btn {
+    background: linear-gradient(145deg, #0ABAB5, #4ECDC4);
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(10, 186, 181, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.audio-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(10, 186, 181, 0.4);
+}
+
+.audio-btn:active {
+    transform: translateY(0);
+}
+
+.audio-btn.voice-enabled {
+    background: linear-gradient(145deg, #4ECDC4, #6ED5CE);
+    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+}
+
+.audio-btn.voice-disabled {
+    background: linear-gradient(145deg, #95A5A6, #BDC3C7);
+    box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+}
+
+.audio-btn.sound-enabled {
+    background: linear-gradient(145deg, #7DD3C0, #81D4E6);
+    box-shadow: 0 4px 15px rgba(125, 211, 192, 0.3);
+}
+
+.audio-btn.sound-disabled {
+    background: linear-gradient(145deg, #95A5A6, #BDC3C7);
+    box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+}
+
+.audio-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.audio-btn:hover::before {
+    left: 100%;
+}
+
+/* 语音设置面板样式 */
+.voice-settings-panel {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #4ECDC4;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.voice-settings-panel h3 {
+    color: #0ABAB5;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.voice-info {
+    background: linear-gradient(135deg, #E0F7FA 0%, #F0FDFF 100%);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.voice-info p {
+    margin: 5px 0;
+    color: #2C3E50;
+}
+
+.voice-info strong {
+    color: #0ABAB5;
+}
+
+.voice-selector {
+    margin-bottom: 15px;
+}
+
+.voice-selector label {
+    display: block;
+    color: #0ABAB5;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.voice-select {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #4ECDC4;
+    border-radius: 8px;
+    background: white;
+    color: #2C3E50;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.voice-select:focus {
+    outline: none;
+    border-color: #0ABAB5;
+    box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+}
+
+.voice-test {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.voice-test .audio-btn {
+    flex: 1;
+    max-width: 120px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .audio-controls {
+        gap: 10px;
+    }
+    
+    .audio-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+    
+    .voice-settings-panel {
+        padding: 15px;
+    }
+    
+    .voice-test {
+        flex-direction: column;
+    }
+    
+    .voice-test .audio-btn {
+        max-width: none;
+    }
 }

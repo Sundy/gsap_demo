@@ -5,9 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>小熊学编程 - Python循环大冒险</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" crossorigin="anonymous"></script>
+    <script>
+        // 检查GSAP是否加载成功
+        window.addEventListener('load', function() {
+            if (typeof gsap === 'undefined') {
+                console.error('GSAP库加载失败，尝试备用CDN');
+                // 备用CDN
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/gsap@3.12.2/dist/gsap.min.js';
+                script.crossOrigin = 'anonymous';
+                document.head.appendChild(script);
+            } else {
+                console.log('GSAP库加载成功');
+            }
+        });
+    </script>
     <!-- Monaco Editor CDN -->
     <script src="https://unpkg.com/monaco-editor@0.44.0/min/vs/loader.js"></script>
+    <!-- 音频管理器 -->
+    <script src="audio-manager.js"></script>
 </head>
 <body>
     <!-- 主容器 -->
@@ -16,6 +33,41 @@
         <header class="header">
             <h1 class="title">🐻 小熊学编程 - Python循环大冒险 🍯</h1>
             <p class="subtitle">和小熊一起学习Python的for循环和while循环吧！</p>
+            
+            <!-- 音频控制面板 -->
+            <div class="audio-controls">
+                <button id="voiceToggle" class="audio-btn voice-enabled" title="语音讲解">
+                    🔊 语音
+                </button>
+                <button id="soundToggle" class="audio-btn sound-enabled" title="音效">
+                    🎵 音效
+                </button>
+                <button id="speakIntro" class="audio-btn" title="播放介绍">
+                    📢 介绍
+                </button>
+                <button id="voiceSettings" class="audio-btn" title="语音设置">
+                    ⚙️ 设置
+                </button>
+            </div>
+            
+            <!-- 语音设置面板（隐藏） -->
+            <div class="voice-settings-panel hidden" id="voiceSettingsPanel">
+                <h3>🎤 语音设置</h3>
+                <div class="voice-info">
+                    <p><strong>当前语音：</strong><span id="currentVoiceName">加载中...</span></p>
+                    <p><strong>语言：</strong><span id="currentVoiceLang">-</span></p>
+                </div>
+                <div class="voice-selector">
+                    <label for="voiceSelect">选择语音：</label>
+                    <select id="voiceSelect" class="voice-select">
+                        <option value="">加载中...</option>
+                    </select>
+                </div>
+                <div class="voice-test">
+                    <button id="testVoice" class="audio-btn">🎵 测试语音</button>
+                    <button id="closeSettings" class="audio-btn">❌ 关闭</button>
+                </div>
+            </div>
         </header>
 
         <!-- 故事场景区域 -->
