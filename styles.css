@@ -53,35 +53,86 @@ body {
         transform: translateY(0);
     }
     40% {
-        transform: translateY(-10px);
+        transform: translateY(-30px);
     }
     60% {
-        transform: translateY(-5px);
+        transform: translateY(-15px);
+    }
+}
+
+@keyframes breathe {
+    0%, 100% {
+        transform: translateY(-50%) scale(1);
+    }
+    50% {
+        transform: translateY(-50%) scale(1.05);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-10px) rotate(2deg);
+    }
+    50% {
+        transform: translateY(-5px) rotate(0deg);
+    }
+    75% {
+        transform: translateY(-15px) rotate(-2deg);
+    }
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(0) rotate(0deg);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1) rotate(180deg);
+    }
+}
+
+@keyframes rainbow {
+    0% {
+        filter: hue-rotate(0deg);
+    }
+    100% {
+        filter: hue-rotate(360deg);
     }
 }
 
 /* 故事场景区域 */
 .story-scene {
-    background: rgba(255, 255, 255, 0.8);
+    background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
     border-radius: 20px;
     padding: 40px;
-    margin-bottom: 30px;
-    min-height: 200px;
     position: relative;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    min-height: 400px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     overflow: hidden;
+    margin-bottom: 20px;
 }
 
 /* 小熊角色 */
-.character.bear {
-    font-size: 4em;
+.bear {
+    font-size: 5em;
     position: absolute;
     left: 50px;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
     z-index: 10;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+    animation: breathe 3s ease-in-out infinite;
+}
+
+.bear:hover {
+    transform: translateY(-50%) scale(1.1);
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.3));
 }
 
 .character.bear:hover {
@@ -99,11 +150,25 @@ body {
 
 /* 蜂蜜罐样式 */
 .honey-jar {
-    font-size: 3em;
+    font-size: 3.75em;
     cursor: pointer;
     transition: all 0.3s ease;
     opacity: 1;
     transform: scale(1);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    animation: float 4s ease-in-out infinite;
+}
+
+.honey-jar:hover {
+    animation-play-state: paused;
+    transform: scale(1.2) rotate(10deg);
+    filter: drop-shadow(0 4px 8px rgba(255,215,0,0.5));
+}
+
+.honey-jar.eaten {
+    animation: none;
+    opacity: 0;
+    transform: scale(0) rotate(360deg);
 }
 
 .honey-jar:hover {
@@ -116,12 +181,14 @@ body {
     filter: grayscale(100%);
 }
 
-/* 课程内容区域 */
+/* 课程内容区域 - 单列布局 */
 .lesson-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 /* 故事文本 */
@@ -610,11 +677,46 @@ body {
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     font-family: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before {
+    width: 300px;
+    height: 300px;
 }
 
 .btn-primary {
     background: linear-gradient(45deg, #0ABAB5, #4ECDC4);
     color: white;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #089B96, #26C6DA);
+    animation-play-state: paused;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
 }
 
 .btn-secondary {
@@ -622,9 +724,26 @@ body {
     color: white;
 }
 
+.btn-secondary:hover {
+    background: linear-gradient(45deg, #5BC5A7, #5CBCE6);
+}
+
 .btn-info {
     background: linear-gradient(45deg, #4ECDC4, #7DD3C0);
     color: white;
+}
+
+.btn-info:hover {
+    background: linear-gradient(45deg, #26C6DA, #5BC5A7);
+}
+
+.btn-success {
+    background: linear-gradient(45deg, #A8E6CF, #88D8A3);
+    color: white;
+}
+
+.btn-success:hover {
+    background: linear-gradient(45deg, #81C784, #66BB6A);
 }
 
 .btn:hover {
@@ -660,6 +779,29 @@ body {
     font-family: 'Courier New', monospace;
     min-height: 120px;
     border: 2px solid #0ABAB5;
+    position: relative;
+    overflow-y: auto;
+    max-height: 300px;
+}
+
+.console::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #4ECDC4, transparent);
+    animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .console-prompt {
@@ -671,6 +813,39 @@ body {
     color: #7DD3C0;
     margin: 5px 0;
     animation: typewriter 0.5s ease-in;
+}
+
+.console-line {
+    margin: 5px 0;
+    opacity: 0;
+    animation: fadeInUp 0.5s ease forwards, typewriterLine 1s steps(40) forwards;
+    border-right: 2px solid #4ECDC4;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.console-line.complete {
+    border-right: none;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes typewriterLine {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
 }
 
 /* 打字机效果 */
@@ -794,6 +969,35 @@ body {
 
 .code-block .number {
     color: #BD93F9;
+}
+
+.code-highlight {
+    background: rgba(255, 255, 0, 0.3);
+    padding: 2px 4px;
+    border-radius: 3px;
+    animation: highlight 0.5s ease, glow 2s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+}
+
+@keyframes highlight {
+    0% {
+        background: rgba(255, 255, 0, 0);
+    }
+    50% {
+        background: rgba(255, 255, 0, 0.6);
+    }
+    100% {
+        background: rgba(255, 255, 0, 0.3);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(255, 255, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(255, 255, 0, 0.8);
+    }
 }
 
 /* 音频控制面板样式 */

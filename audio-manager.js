@@ -272,6 +272,13 @@ class AudioManager {
     }
 
     /**
+     * 检查语音是否启用
+     */
+    isVoiceEnabled() {
+        return this.voiceEnabled && this.isEnabled;
+    }
+
+    /**
      * 设置音效开关
      */
     setSoundEnabled(enabled) {

@@ -1,9 +1,8 @@
-// 儿童Python循环学习网站 - 交互式动画脚本
+// 儿童Python循环学习网站 - Framer Motion动画脚本
 
 // 全局变量
 let isAnimating = false;
 let currentStep = 0;
-let animationTimeline;
 let monacoEditor = null; // Monaco Editor实例
 
 // DOM元素引用
@@ -29,106 +28,186 @@ const closeSettingsBtn = document.getElementById('closeSettings');
 const currentVoiceName = document.getElementById('currentVoiceName');
 const currentVoiceLang = document.getElementById('currentVoiceLang');
 
-// 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', function() {
-    // 延迟初始化，确保GSAP库完全加载
-    setTimeout(function() {
-        if (typeof gsap !== 'undefined') {
-            initializeMonacoEditor();
-            initializeAnimations();
-            setupEventListeners();
-            showWelcomeAnimation();
+// Web Animations API动画工具函数
+function animate(element, keyframes, options = {}) {
+    if (!element) return Promise.resolve();
+    
+    // 转换属性名称映射
+    const propMap = {
+        'x': 'transform',
+        'y': 'transform', 
+        'scale': 'transform',
+        'rotate': 'transform'
+    };
+    
+    // 处理transform属性
+    let transformValues = [];
+    const otherKeyframes = {};
+    
+    Object.keys(keyframes).forEach(prop => {
+        const value = keyframes[prop];
+        const values = Array.isArray(value) ? value : [value];
+        
+        if (prop === 'x') {
+            values.forEach((v, i) => {
+                if (!transformValues[i]) transformValues[i] = {};
+                transformValues[i].x = v;
+            });
+        } else if (prop === 'y') {
+            values.forEach((v, i) => {
+                if (!transformValues[i]) transformValues[i] = {};
+                transformValues[i].y = v;
+            });
+        } else if (prop === 'scale') {
+            values.forEach((v, i) => {
+                if (!transformValues[i]) transformValues[i] = {};
+                transformValues[i].scale = v;
+            });
+        } else if (prop === 'rotate') {
+            values.forEach((v, i) => {
+                if (!transformValues[i]) transformValues[i] = {};
+                transformValues[i].rotate = v;
+            });
         } else {
-            console.error('GSAP库加载失败，请刷新页面重试');
-            // 再次尝试加载
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/gsap@3.12.2/dist/gsap.min.js';
-            script.onload = function() {
-                initializeMonacoEditor();
-                initializeAnimations();
-                setupEventListeners();
-                showWelcomeAnimation();
-            };
-            document.head.appendChild(script);
+            otherKeyframes[prop] = values;
         }
+    });
+    
+    // 构建transform字符串
+    if (transformValues.length > 0) {
+        otherKeyframes.transform = transformValues.map(tv => {
+            let transform = '';
+            if (tv.x !== undefined) transform += `translateX(${tv.x}px) `;
+            if (tv.y !== undefined) transform += `translateY(${tv.y}px) `;
+            if (tv.scale !== undefined) transform += `scale(${tv.scale}) `;
+            if (tv.rotate !== undefined) transform += `rotate(${tv.rotate}deg) `;
+            return transform.trim();
+        });
+    }
+    
+    const webOptions = {
+        duration: (options.duration || 1) * 1000,
+        easing: options.ease || 'ease',
+        fill: 'forwards'
+    };
+    
+    return element.animate(otherKeyframes, webOptions).finished;
+}
+
+/**
+ * 页面加载完成后初始化
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // 延迟初始化，确保页面完全加载
+    setTimeout(function() {
+        initializeMonacoEditor();
+        initializeAnimations();
+        setupEventListeners();
+        showWelcomeAnimation();
     }, 100);
 });
 
 /**
- * 初始化GSAP动画设置
+ * 初始化动画设置
  */
 function initializeAnimations() {
-    if (!checkGSAP()) return;
-    
     // 设置初始状态
-    gsap.set(bear, { x: 0, y: 0, rotation: 0 });
-    gsap.set(honeyJars, { scale: 1, opacity: 1, rotation: 0 });
+    if (bear) {
+        bear.style.transform = 'translateX(0px) translateY(-50%) scale(1) rotate(0deg)';
+    }
     
-    // 创建主时间轴
-    animationTimeline = gsap.timeline({ paused: true });
+    // 为蜂蜜罐添加悬停效果
+    honeyJars.forEach((jar, index) => {
+        jar.addEventListener('mouseenter', () => {
+            if (!jar.classList.contains('eaten')) {
+                animate(jar, {
+                    scale: 1.2,
+                    rotate: 10
+                }, { duration: 0.3, ease: 'ease-out' });
+            }
+        });
+        
+        jar.addEventListener('mouseleave', () => {
+            if (!jar.classList.contains('eaten')) {
+                animate(jar, {
+                    scale: 1,
+                    rotate: 0
+                }, { duration: 0.3, ease: 'ease-out' });
+            }
+        });
+    });
 }
 
 /**
  * 设置事件监听器
  */
 function setupEventListeners() {
-    startBtn.addEventListener('click', startForLoopAnimation);
-    resetBtn.addEventListener('click', resetAnimation);
-    nextLessonBtn.addEventListener('click', showWhileLesson);
-    startWhileBtn.addEventListener('click', startWhileLoopAnimation);
-    backToForBtn.addEventListener('click', showForLesson);
+    // 开始动画按钮
+    if (startBtn) {
+        startBtn.addEventListener('click', startForLoopAnimation);
+    }
+    
+    // 重置按钮
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetAnimation);
+    }
+    
+    // 下一课按钮
+    if (nextLessonBtn) {
+        nextLessonBtn.addEventListener('click', showWhileLesson);
+    }
+    
+    // while循环开始按钮
+    if (startWhileBtn) {
+        startWhileBtn.addEventListener('click', startWhileLoopAnimation);
+    }
+    
+    // 返回for循环按钮
+    if (backToForBtn) {
+        backToForBtn.addEventListener('click', showForLesson);
+    }
+    
+    // 小熊点击事件
+    if (bear) {
+        bear.addEventListener('click', bearWave);
+    }
     
     // 蜂蜜罐点击事件
     honeyJars.forEach((jar, index) => {
         jar.addEventListener('click', () => eatHoney(index));
     });
     
-    // 小熊点击事件
-    bear.addEventListener('click', bearDance);
-    
-    // 在线练习按钮事件
+    // 练习按钮
     const practiceBtn = document.getElementById('practiceBtn');
     if (practiceBtn) {
-        practiceBtn.addEventListener('click', function() {
-            document.querySelector('.lesson-content').classList.add('hidden');
-            document.getElementById('whileLesson').classList.add('hidden');
-            document.getElementById('practiceArea').classList.remove('hidden');
-            initializePractice();
-        });
-    }
-
-    // 返回课程按钮事件
-    const backToLessonBtn = document.getElementById('backToLessonBtn');
-    if (backToLessonBtn) {
-        backToLessonBtn.addEventListener('click', function() {
-            document.getElementById('practiceArea').classList.add('hidden');
-            document.querySelector('.lesson-content').classList.remove('hidden');
-        });
+        practiceBtn.addEventListener('click', initializePractice);
     }
     
-    // 音频控制按钮事件
+    // 设置音频控制
     setupAudioControls();
 }
 
 /**
- * 设置音频控制功能
+ * 设置音频控制
  */
 function setupAudioControls() {
     // 语音开关
     if (voiceToggle) {
         voiceToggle.addEventListener('click', function() {
-            if (window.audioManager) {
-                const isEnabled = !window.audioManager.voiceEnabled;
-                window.audioManager.setVoiceEnabled(isEnabled);
-                
-                if (isEnabled) {
-                    voiceToggle.classList.remove('voice-disabled');
-                    voiceToggle.classList.add('voice-enabled');
-                    voiceToggle.innerHTML = '🔊 语音';
-                } else {
-                    voiceToggle.classList.remove('voice-enabled');
-                    voiceToggle.classList.add('voice-disabled');
-                    voiceToggle.innerHTML = '🔇 语音';
+            const isEnabled = this.classList.contains('voice-enabled');
+            if (isEnabled) {
+                this.classList.remove('voice-enabled');
+                this.classList.add('voice-disabled');
+                this.innerHTML = '🔇 语音';
+                if (window.audioManager) {
+                    window.audioManager.setVoiceEnabled(false);
+                }
+            } else {
+                this.classList.remove('voice-disabled');
+                this.classList.add('voice-enabled');
+                this.innerHTML = '🔊 语音';
+                if (window.audioManager) {
+                    window.audioManager.setVoiceEnabled(true);
                 }
             }
         });
@@ -137,848 +216,297 @@ function setupAudioControls() {
     // 音效开关
     if (soundToggle) {
         soundToggle.addEventListener('click', function() {
-            if (window.audioManager) {
-                const isEnabled = !window.audioManager.soundEnabled;
-                window.audioManager.setSoundEnabled(isEnabled);
-                
-                if (isEnabled) {
-                    soundToggle.classList.remove('sound-disabled');
-                    soundToggle.classList.add('sound-enabled');
-                    soundToggle.innerHTML = '🎵 音效';
-                } else {
-                    soundToggle.classList.remove('sound-enabled');
-                    soundToggle.classList.add('sound-disabled');
-                    soundToggle.innerHTML = '🔇 音效';
+            const isEnabled = this.classList.contains('sound-enabled');
+            if (isEnabled) {
+                this.classList.remove('sound-enabled');
+                this.classList.add('sound-disabled');
+                this.innerHTML = '🔇 音效';
+                if (window.audioManager) {
+                    window.audioManager.setSoundEnabled(false);
+                }
+            } else {
+                this.classList.remove('sound-disabled');
+                this.classList.add('sound-enabled');
+                this.innerHTML = '🎵 音效';
+                if (window.audioManager) {
+                    window.audioManager.setSoundEnabled(true);
                 }
             }
         });
     }
     
-    // 播放介绍
+    // 播放介绍按钮
     if (speakIntroBtn) {
-        speakIntroBtn.addEventListener('click', function() {
-            speakIntroduction();
-        });
+        speakIntroBtn.addEventListener('click', speakIntroduction);
     }
     
     // 语音设置按钮
     if (voiceSettingsBtn) {
-        voiceSettingsBtn.addEventListener('click', function() {
-            toggleVoiceSettings();
-        });
+        voiceSettingsBtn.addEventListener('click', toggleVoiceSettings);
     }
     
     // 关闭设置按钮
     if (closeSettingsBtn) {
-        closeSettingsBtn.addEventListener('click', function() {
-            hideVoiceSettings();
-        });
+        closeSettingsBtn.addEventListener('click', hideVoiceSettings);
     }
     
     // 测试语音按钮
     if (testVoiceBtn) {
         testVoiceBtn.addEventListener('click', function() {
-            if (window.audioManager) {
-                window.audioManager.testVoice();
+            if (window.speechSynthesis) {
+                const utterance = new SpeechSynthesisUtterance('你好，我是小熊！');
+                const selectedVoice = voiceSelect.value;
+                if (selectedVoice) {
+                    const voices = window.speechSynthesis.getVoices();
+                    utterance.voice = voices.find(voice => voice.name === selectedVoice);
+                }
+                window.speechSynthesis.speak(utterance);
             }
         });
     }
     
-    // 语音选择下拉框
+    // 语音选择变化
     if (voiceSelect) {
-        voiceSelect.addEventListener('change', function() {
-            const selectedVoice = this.value;
-            if (selectedVoice && window.audioManager) {
-                window.audioManager.switchVoice(selectedVoice);
-                updateVoiceInfo();
-            }
-        });
+        voiceSelect.addEventListener('change', updateVoiceInfo);
     }
     
     // 初始化语音设置
     initializeVoiceSettings();
-
-    // 初始化在线练习功能
-    initializePracticeFeatures();
 }
 
 /**
  * 显示欢迎动画
  */
 function showWelcomeAnimation() {
-    if (!checkGSAP()) return;
+    // 标题弹跳动画
+    const title = document.querySelector('.title');
+    if (title) {
+        animate(title, {
+            scale: [1, 1.1, 1],
+            y: [0, -10, 0],
+            transition: {
+                duration: 2,
+                repeat: Infinity,
+                ease: 'easeInOut'
+            }
+        });
+    }
     
-    const tl = gsap.timeline();
+    // 小熊入场动画
+    if (bear) {
+        animate(bear, {
+            scale: [0, 1.2, 1],
+            rotate: [0, 360, 0],
+            transition: {
+                duration: 1.5,
+                ease: 'backOut'
+            }
+        });
+    }
     
-    // 小熊欢迎动画
-    tl.from(bear, {
-        scale: 0,
-        rotation: 360,
-        duration: 1,
-        ease: 'bounce.out'
-    })
     // 蜂蜜罐依次出现
-    .from(honeyJars, {
-        y: -50,
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.2,
-        ease: 'power2.out'
-    }, '-=0.5')
-    // 标题动画
-    .from('.title', {
-        y: -30,
-        opacity: 0,
-        duration: 0.8,
-        ease: 'power2.out'
-    }, '-=1')
-    // 副标题动画
-    .from('.subtitle', {
-        y: 20,
-        opacity: 0,
-        duration: 0.6,
-        ease: 'power2.out'
-    }, '-=0.4');
+    honeyJars.forEach((jar, index) => {
+        animate(jar, {
+            scale: [0, 1.3, 1],
+            rotate: [0, 180, 0],
+            transition: {
+                duration: 0.8,
+                delay: index * 0.2,
+                ease: 'backOut'
+            }
+        });
+    });
+    
+    // 播放欢迎语音
+    setTimeout(() => {
+        speakIntroduction();
+    }, 2000);
 }
 
 /**
  * 庆祝动画
  */
 function celebrateAnimation() {
-    if (!checkGSAP()) return;
+    // 小熊庆祝动画 - 更丰富的效果
+    if (bear) {
+        animate(bear, {
+            y: [-50, 0],
+            rotate: [0, 720],
+            scale: [1, 1.5, 1],
+            transition: {
+                duration: 1.5,
+                ease: 'backOut'
+            }
+        });
+    }
+    
+    // 创建粒子爆炸效果
+    createParticleExplosion();
+    
+    // 创建彩虹效果
+    createRainbowEffect();
     
     // 播放庆祝音效
     if (window.audioManager) {
         window.audioManager.playSound('celebration');
     }
+}
+
+/**
+ * 创建粒子爆炸效果
+ */
+function createParticleExplosion() {
+    const particles = ['🎉', '🎊', '🌟', '✨', '🎈', '🍯', '🐻', '❤️'];
+    const container = document.querySelector('.story-scene');
     
-    const tl = gsap.timeline();
+    for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.textContent = particles[Math.floor(Math.random() * particles.length)];
+        particle.style.position = 'absolute';
+        particle.style.fontSize = '2em';
+        particle.style.pointerEvents = 'none';
+        particle.style.zIndex = '1000';
+        particle.style.left = '50%';
+        particle.style.top = '50%';
+        
+        container.appendChild(particle);
+        
+        // 随机方向和距离
+        const angle = (Math.PI * 2 * i) / 20;
+        const distance = 100 + Math.random() * 200;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+        
+        animate(particle, {
+            x: [0, x],
+            y: [0, y],
+            rotate: [0, 360 * (Math.random() > 0.5 ? 1 : -1)],
+            scale: [0, 1.5, 0],
+            opacity: [1, 1, 0],
+            transition: {
+                duration: 2,
+                ease: 'easeOut'
+            }
+        }).then(() => {
+            particle.remove();
+        });
+    }
+}
+
+/**
+ * 创建彩虹效果
+ */
+function createRainbowEffect() {
+    const rainbow = document.createElement('div');
+    rainbow.innerHTML = '🌈';
+    rainbow.style.position = 'fixed';
+    rainbow.style.fontSize = '5em';
+    rainbow.style.left = '50%';
+    rainbow.style.top = '20%';
+    rainbow.style.transform = 'translateX(-50%)';
+    rainbow.style.pointerEvents = 'none';
+    rainbow.style.zIndex = '999';
     
-    tl.from('.header', { y: -100, opacity: 0, duration: 1, ease: 'bounce.out' })
-      .from('.story-scene', { scale: 0.8, opacity: 0, duration: 0.8, ease: 'back.out(1.7)' }, '-=0.5')
-      .from('.lesson-content', { y: 50, opacity: 0, duration: 0.6, stagger: 0.2 }, '-=0.3')
-      .from('.output-area', { x: -100, opacity: 0, duration: 0.6 }, '-=0.2')
-      .from('.concept-explanation', { scale: 0.9, opacity: 0, duration: 0.8, ease: 'back.out(1.7)' }, '-=0.4');
+    document.body.appendChild(rainbow);
     
-    // 小熊入场动画
-    gsap.from(bear, { 
-        x: -200, 
-        duration: 2, 
-        ease: 'power2.out',
-        delay: 1.5,
-        onComplete: () => {
-            bearWave();
-            animateConceptElements();
+    animate(rainbow, {
+        scale: [0, 1.5, 1],
+        rotate: [0, 360],
+        opacity: [0, 1, 0],
+        transition: {
+            duration: 3,
+            ease: 'easeInOut'
         }
-    });
-    
-    // 蜂蜜罐闪烁动画
-    gsap.to(honeyJars, {
-        scale: 1.1,
-        duration: 0.5,
-        yoyo: true,
-        repeat: -1,
-        stagger: 0.2,
-        ease: 'power2.inOut',
-        delay: 2
+    }).then(() => {
+        rainbow.remove();
     });
 }
 
 /**
- * 初始化Monaco Editor
- */
-/**
- * 初始化Monaco Editor编辑器
+ * 初始化Monaco编辑器
  */
 function initializeMonacoEditor() {
-    require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@0.44.0/min/vs' } });
-    require(['vs/editor/editor.main'], function () {
-        const container = document.getElementById('monacoEditorContainer');
-        if (container) {
-            // 配置Python语言特性
-            monaco.languages.registerCompletionItemProvider('python', {
-                provideCompletionItems: function(model, position) {
-                    // 儿童友好的Python关键词和函数提示
-                    const suggestions = [
-                        {
-                            label: 'for',
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: 'for ${1:i} in range(${2:3}):\n    ${3:print("小熊执行第", i+1, "次")}',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                            documentation: '创建一个for循环，让小熊重复执行任务'
-                        },
-                        {
-                            label: 'while',
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: 'while ${1:condition}:\n    ${2:print("小熊继续工作")}',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                            documentation: '创建一个while循环，当条件为真时小熊继续执行'
-                        },
-                        {
-                            label: 'print',
-                            kind: monaco.languages.CompletionItemKind.Function,
-                            insertText: 'print("${1:小熊说：你好！}")',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                            documentation: '让小熊说话或显示信息'
-                        },
-                        {
-                            label: 'range',
-                            kind: monaco.languages.CompletionItemKind.Function,
-                            insertText: 'range(${1:3})',
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                            documentation: '创建一个数字序列，常用于for循环'
-                        }
-                    ];
-                    return { suggestions: suggestions };
-                }
-            });
-            
-            // 创建Monaco Editor实例
-            monacoEditor = monaco.editor.create(container, {
-                value: '# 🐻 小熊学Python - 在这里编写你的代码\n# 例如：\nfor i in range(3):\n    print(f"小熊吃掉了第{i+1}个蜂蜜罐 🍯")',
-                language: 'python',
-                theme: 'vs-dark',
-                fontSize: 14,
-                lineNumbers: 'on',
-                roundedSelection: false,
-                scrollBeyondLastLine: false,
-                readOnly: false,
-                automaticLayout: true,
-                minimap: { enabled: false },
-                wordWrap: 'on',
-                lineHeight: 22,
-                folding: true,
-                renderLineHighlight: 'line',
-                selectOnLineNumbers: true,
-                matchBrackets: 'always',
-                // 智能提示配置
-                suggestOnTriggerCharacters: true,
-                acceptSuggestionOnEnter: 'on',
-                tabCompletion: 'on',
-                wordBasedSuggestions: true,
-                // 代码格式化
-                formatOnPaste: true,
-                formatOnType: true,
-                // 括号匹配
-                autoClosingBrackets: 'always',
-                autoClosingQuotes: 'always',
-                autoIndent: 'full',
-                // 滚动条
-                scrollbar: {
-                    vertical: 'auto',
-                    horizontal: 'auto',
-                    verticalScrollbarSize: 8,
-                    horizontalScrollbarSize: 8
-                }
-            });
-            
-            // 添加快捷键
-            monacoEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, function() {
-                runPythonCode();
-            });
-            
-            // 初始化练习功能
-            setTimeout(() => {
-                initializePracticeFeatures();
-                initializePractice();
-            }, 100);
-        }
-    });
-}
-
-/**
- * 获取Monaco Editor中的代码内容
- */
-function getEditorCode() {
-    return monacoEditor ? monacoEditor.getValue() : '';
-}
-
-/**
- * 设置Monaco Editor中的代码内容
- */
-function setEditorCode(code) {
-    if (monacoEditor) {
-        monacoEditor.setValue(code);
-    }
-}
-
-/**
- * 概念元素动画效果
- */
-function animateConceptElements() {
-    // 语法框闪烁效果
-    gsap.to('.syntax-box', {
-        boxShadow: '0 0 20px rgba(243, 156, 18, 0.5)',
-        duration: 1,
-        yoyo: true,
-        repeat: 2,
-        ease: 'power2.inOut',
-        delay: 1
-    });
-    
-    // 概念讲解区域的图标动画
-    gsap.to('.concept-explanation::before', {
-        rotation: 360,
-        duration: 2,
-        ease: 'power2.inOut',
-        delay: 2
-    });
-}
-
-/**
- * 初始化在线练习功能
- */
-function initializePracticeFeatures() {
-    // 练习题目切换
-    const exerciseTabs = document.querySelectorAll('.exercise-tab');
-    const exercises = document.querySelectorAll('.exercise');
-    
-    exerciseTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            const exerciseId = this.dataset.exercise;
-            
-            // 更新标签状态
-            exerciseTabs.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            
-            // 显示对应练习
-            exercises.forEach(ex => ex.classList.add('hidden'));
-            document.getElementById(`exercise-${exerciseId}`).classList.remove('hidden');
-            
-            // 重置代码编辑器
-            resetCodeEditor(exerciseId);
+    // Monaco编辑器初始化代码保持不变
+    if (typeof require !== 'undefined') {
+        require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor@0.44.0/min/vs' }});
+        require(['vs/editor/editor.main'], function () {
+            const container = document.getElementById('monacoEditorContainer');
+            if (container) {
+                monacoEditor = monaco.editor.create(container, {
+                    value: '# 在这里编写你的Python代码\nfor i in range(3):\n    print(f"小熊吃掉了第{i+1}个蜂蜜罐 🍯")',
+                    language: 'python',
+                    theme: 'vs-light',
+                    fontSize: 14,
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                    lineNumbers: 'on',
+                    roundedSelection: false,
+                    scrollbar: {
+                        vertical: 'auto',
+                        horizontal: 'auto'
+                    }
+                });
+            }
         });
-    });
-    
-    // 代码编辑器功能
-    const runCodeBtn = document.getElementById('runCodeBtn');
-    const resetCodeBtn = document.getElementById('resetCodeBtn');
-    const hintBtn = document.getElementById('hintBtn');
-    const checkAnswerBtn = document.getElementById('checkAnswerBtn');
-    const nextExerciseBtn = document.getElementById('nextExerciseBtn');
-    
-    runCodeBtn.addEventListener('click', runPythonCode);
-    resetCodeBtn.addEventListener('click', () => resetCodeEditor(getCurrentExercise()));
-    hintBtn.addEventListener('click', showHint);
-    checkAnswerBtn.addEventListener('click', checkAnswer);
-    nextExerciseBtn.addEventListener('click', nextExercise);
-}
-
-/**
- * 初始化练习（设置默认代码）
- */
-function initializePractice() {
-    resetCodeEditor('for1');
-    clearResult();
-}
-
-/**
- * 获取当前练习ID
- */
-function getCurrentExercise() {
-    const activeTab = document.querySelector('.exercise-tab.active');
-    return activeTab ? activeTab.dataset.exercise : 'for1';
-}
-
-/**
- * 重置代码编辑器
- */
-/**
- * 重置代码编辑器内容
- */
-function resetCodeEditor(exerciseId) {
-    const templates = {
-        'for1': '# 使用for循环让小熊吃3个蜂蜜罐\nfor i in range(3):\n    print(f"小熊吃掉了第{i+1}个蜂蜜罐 🍯")',
-        'for2': '# 使用for循环让小熊数星星\nfor i in range(1, 6):\n    print(f"小熊数到了第{i}颗星星 ⭐")',
-        'while1': '# 使用while循环让小熊找苹果\napple_count = 0\nwhile apple_count < 5:\n    apple_count += 1\n    print(f"小熊找到了第{apple_count}个苹果 🍎")\nprint("小熊找够了苹果！")'
-    };
-    const code = templates[exerciseId] || templates['for1'];
-    setEditorCode(code);
-    clearResult();
-}
-
-/**
- * Python代码执行引擎（通过Docker API执行）
- */
-async function runPythonCode() {
-    const code = getEditorCode();
-    const resultConsole = document.getElementById('resultConsole');
-    const resultStatus = document.getElementById('resultStatus');
-    
-    try {
-        // 清空之前的结果并显示加载状态
-        resultConsole.innerHTML = '<div style="color: #666;">🐻 小熊正在执行代码...</div>';
-        resultConsole.className = 'result-console loading';
-        resultStatus.className = 'result-status loading';
-        resultStatus.textContent = '代码执行中...';
-        
-        // 调用后端API执行代码
-        const response = await fetch('http://localhost:8000/api/execute', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ code: code })
-        });
-        
-        const result = await response.json();
-        
-        // 移除加载状态
-        resultConsole.className = 'result-console';
-        
-        if (result.success) {
-            // 执行成功
-            let output = '';
-            if (result.stdout) {
-                output += result.stdout;
-            }
-            if (result.stderr) {
-                output += `<span style="color: #ff9800;">${result.stderr}</span>`;
-            }
-            
-            resultConsole.innerHTML = output || '<div style="color: #666;">代码执行完成，无输出</div>';
-            resultStatus.className = 'result-status success';
-            resultStatus.textContent = `执行成功！用时 ${result.execution_time}s`;
-        } else {
-            // 执行失败
-            resultConsole.innerHTML = `<span style="color: #ff6b6b;">${result.error}</span>`;
-            resultStatus.className = 'result-status error';
-            resultStatus.textContent = '代码执行出错';
-        }
-    } catch (error) {
-        // 网络或其他错误
-        console.error('代码执行错误:', error);
-        resultConsole.innerHTML = `<span style="color: #ff6b6b;">❌ 连接执行服务失败: ${error.message}</span>`;
-        resultStatus.className = 'result-status error';
-        resultStatus.textContent = '服务连接失败';
     }
-}
-
-/**
- * 模拟Python代码执行
- */
-function simulatePythonExecution(code) {
-    try {
-        let output = [];
-        let variables = {};
-        
-        // 解析代码结构
-        const codeStructure = parseCodeStructure(code);
-        
-        // 执行代码
-        const result = executeCodeStructure(codeStructure, variables, output);
-        if (result.error) {
-            return { error: result.error };
-        }
-        
-        return { result: output.join('\n') };
-    } catch (error) {
-        return { error: error.message };
-    }
-}
-
-/**
- * 解析代码结构
- */
-function parseCodeStructure(code) {
-    const lines = code.split('\n');
-    const structure = [];
-    let i = 0;
-    
-    while (i < lines.length) {
-        const line = lines[i].trim();
-        
-        if (!line || line.startsWith('#')) {
-            i++;
-            continue;
-        }
-        
-        if (line.startsWith('for ') && line.endsWith(':')) {
-            // 解析for循环
-            const loopBody = [];
-            i++;
-            while (i < lines.length && (lines[i].startsWith('    ') || lines[i].trim() === '')) {
-                if (lines[i].trim()) {
-                    loopBody.push(lines[i].trim());
-                }
-                i++;
-            }
-            structure.push({ type: 'for', line: line, body: loopBody });
-        } else if (line.startsWith('while ') && line.endsWith(':')) {
-            // 解析while循环
-            const loopBody = [];
-            i++;
-            while (i < lines.length && (lines[i].startsWith('    ') || lines[i].trim() === '')) {
-                if (lines[i].trim()) {
-                    loopBody.push(lines[i].trim());
-                }
-                i++;
-            }
-            structure.push({ type: 'while', line: line, body: loopBody });
-        } else {
-            // 普通语句
-            structure.push({ type: 'statement', line: line });
-            i++;
-        }
-    }
-    
-    return structure;
-}
-
-/**
- * 执行代码结构
- */
-function executeCodeStructure(structure, variables, output) {
-    for (let item of structure) {
-        if (item.type === 'statement') {
-            const result = executeLine(item.line, variables, output);
-            if (result.error) {
-                return { error: result.error };
-            }
-        } else if (item.type === 'for') {
-            const result = executeForLoopWithBody(item.line, item.body, variables, output);
-            if (result.error) {
-                return { error: result.error };
-            }
-        } else if (item.type === 'while') {
-            const result = executeWhileLoopWithBody(item.line, item.body, variables, output);
-            if (result.error) {
-                return { error: result.error };
-            }
-        }
-    }
-    
-    return { success: true };
-}
-
-/**
- * 执行单行代码
- */
-function executeLine(line, variables, output) {
-    try {
-        // 处理变量赋值
-        if (line.includes(' = ') && !line.includes('==')) {
-            const [varName, value] = line.split(' = ').map(s => s.trim());
-            variables[varName] = evaluateExpression(value, variables);
-            return { success: true };
-        }
-        
-        // 处理for循环
-        if (line.startsWith('for ')) {
-            return executeForLoop(line, variables, output);
-        }
-        
-        // 处理while循环
-        if (line.startsWith('while ')) {
-            return executeWhileLoop(line, variables, output);
-        }
-        
-        // 处理print语句
-        if (line.startsWith('print(')) {
-            const printContent = line.match(/print\((.+)\)/)[1];
-            const result = evaluateExpression(printContent, variables);
-            output.push(result);
-            return { success: true };
-        }
-        
-        // 处理自增操作
-        if (line.includes(' += ')) {
-            const [varName, increment] = line.split(' += ').map(s => s.trim());
-            variables[varName] = (variables[varName] || 0) + evaluateExpression(increment, variables);
-            return { success: true };
-        }
-        
-        return { success: true };
-    } catch (error) {
-        return { error: error.message };
-    }
-}
-
-/**
- * 执行for循环（带循环体）
- */
-function executeForLoopWithBody(line, body, variables, output) {
-    const match = line.match(/for (\w+) in range\((.+)\):/);
-    if (!match) return { error: 'for循环语法错误' };
-    
-    const [, varName, rangeExpr] = match;
-    const range = parseRange(rangeExpr, variables);
-    
-    for (let i of range) {
-        variables[varName] = i;
-        
-        // 执行循环体
-        for (let bodyLine of body) {
-            const result = executeLine(bodyLine, variables, output);
-            if (result.error) {
-                return { error: result.error };
-            }
-        }
-    }
-    
-    return { success: true };
-}
-
-/**
- * 执行while循环（带循环体）
- */
-function executeWhileLoopWithBody(line, body, variables, output) {
-    const match = line.match(/while (.+):/);
-    if (!match) return { error: 'while循环语法错误' };
-    
-    const condition = match[1];
-    let iterations = 0;
-    const maxIterations = 100; // 防止无限循环
-    
-    while (evaluateCondition(condition, variables) && iterations < maxIterations) {
-        iterations++;
-        
-        // 执行循环体
-        for (let bodyLine of body) {
-            const result = executeLine(bodyLine, variables, output);
-            if (result.error) {
-                return { error: result.error };
-            }
-        }
-    }
-    
-    if (iterations >= maxIterations) {
-        return { error: '循环次数过多，可能存在无限循环' };
-    }
-    
-    return { success: true };
-}
-
-/**
- * 执行for循环（兼容旧版本）
- */
-function executeForLoop(line, variables, output) {
-    return executeForLoopWithBody(line, [], variables, output);
-}
-
-/**
- * 执行while循环（兼容旧版本）
- */
-function executeWhileLoop(line, variables, output) {
-    return executeWhileLoopWithBody(line, [], variables, output);
-}
-
-/**
- * 解析range函数
- */
-function parseRange(expr, variables) {
-    const args = expr.split(',').map(s => evaluateExpression(s.trim(), variables));
-    
-    if (args.length === 1) {
-        return Array.from({ length: args[0] }, (_, i) => i);
-    } else if (args.length === 2) {
-        return Array.from({ length: args[1] - args[0] }, (_, i) => i + args[0]);
-    }
-    
-    return [];
-}
-
-/**
- * 计算表达式
- */
-function evaluateExpression(expr, variables) {
-    // 处理字符串
-    if (expr.startsWith('"') && expr.endsWith('"')) {
-        return expr.slice(1, -1);
-    }
-    if (expr.startsWith("'") && expr.endsWith("'")) {
-        return expr.slice(1, -1);
-    }
-    
-    // 处理f-string
-    if (expr.startsWith('f"') || expr.startsWith("f'")) {
-        return evaluateFString(expr, variables);
-    }
-    
-    // 处理数字
-    if (!isNaN(expr)) {
-        return parseInt(expr);
-    }
-    
-    // 处理变量
-    if (variables.hasOwnProperty(expr)) {
-        return variables[expr];
-    }
-    
-    // 处理简单的数学表达式
-    if (expr.includes('+')) {
-        const parts = expr.split('+').map(s => evaluateExpression(s.trim(), variables));
-        return parts.reduce((a, b) => a + b, 0);
-    }
-    
-    return expr;
-}
-
-/**
- * 计算f-string
- */
-function evaluateFString(fstring, variables) {
-    let result = fstring.slice(2, -1); // 移除f" 和 "
-    
-    // 替换{变量}格式
-    result = result.replace(/\{([^}]+)\}/g, (match, expr) => {
-        return evaluateExpression(expr, variables);
-    });
-    
-    return result;
-}
-
-/**
- * 计算条件表达式
- */
-function evaluateCondition(condition, variables) {
-    if (condition.includes(' < ')) {
-        const [left, right] = condition.split(' < ').map(s => evaluateExpression(s.trim(), variables));
-        return left < right;
-    }
-    if (condition.includes(' > ')) {
-        const [left, right] = condition.split(' > ').map(s => evaluateExpression(s.trim(), variables));
-        return left > right;
-    }
-    if (condition.includes(' <= ')) {
-        const [left, right] = condition.split(' <= ').map(s => evaluateExpression(s.trim(), variables));
-        return left <= right;
-    }
-    if (condition.includes(' >= ')) {
-        const [left, right] = condition.split(' >= ').map(s => evaluateExpression(s.trim(), variables));
-        return left >= right;
-    }
-    if (condition.includes(' == ')) {
-        const [left, right] = condition.split(' == ').map(s => evaluateExpression(s.trim(), variables));
-        return left == right;
-    }
-    
-    return false;
-}
-
-/**
- * 显示提示
- */
-function showHint() {
-    const exerciseId = getCurrentExercise();
-    const hints = {
-        'for1': '提示：使用 for i in range(3): 来循环3次，然后用 print(f"小熊吃掉了第{i+1}个蜂蜜罐 🍯") 来输出',
-        'for2': '提示：使用 for i in range(1, 6): 来从1循环到5，然后用 print(f"小熊数到了第{i}颗星星 ⭐") 来输出',
-        'while1': '提示：先设置 apple_count = 0，然后用 while apple_count < 5: 来循环，记得在循环内用 apple_count += 1 来增加计数'
-    };
-    
-    alert(hints[exerciseId] || '暂无提示');
-}
-
-/**
- * 检查答案
- */
-function checkAnswer() {
-    const exerciseId = getCurrentExercise();
-    const code = getEditorCode();
-    const resultConsole = document.getElementById('resultConsole');
-    
-    // 先运行代码
-    runPythonCode();
-    
-    // 检查输出是否正确
-    setTimeout(() => {
-        const output = resultConsole.textContent;
-        const isCorrect = validateAnswer(exerciseId, output);
-        
-        const resultStatus = document.getElementById('resultStatus');
-        if (isCorrect) {
-            resultStatus.className = 'result-status success';
-            resultStatus.textContent = '🎉 答案正确！你真棒！';
-        } else {
-            resultStatus.className = 'result-status warning';
-            resultStatus.textContent = '答案不完全正确，再试试看吧！';
-        }
-    }, 100);
-}
-
-/**
- * 验证答案
- */
-function validateAnswer(exerciseId, output) {
-    const expectedOutputs = {
-        'for1': ['小熊吃掉了第1个蜂蜜罐 🍯', '小熊吃掉了第2个蜂蜜罐 🍯', '小熊吃掉了第3个蜂蜜罐 🍯'],
-        'for2': ['小熊数到了第1颗星星 ⭐', '小熊数到了第2颗星星 ⭐', '小熊数到了第3颗星星 ⭐', '小熊数到了第4颗星星 ⭐', '小熊数到了第5颗星星 ⭐'],
-        'while1': ['小熊找到了第1个苹果 🍎', '小熊找到了第2个苹果 🍎', '小熊找到了第3个苹果 🍎', '小熊找到了第4个苹果 🍎', '小熊找到了第5个苹果 🍎', '小熊找够了苹果！']
-    };
-    
-    const expected = expectedOutputs[exerciseId];
-    if (!expected) return false;
-    
-    const outputLines = output.split('\n').filter(line => line.trim());
-    
-    return expected.every((expectedLine, index) => {
-        return outputLines[index] && outputLines[index].includes(expectedLine);
-    });
-}
-
-/**
- * 下一题
- */
-function nextExercise() {
-    const tabs = document.querySelectorAll('.exercise-tab');
-    const currentIndex = Array.from(tabs).findIndex(tab => tab.classList.contains('active'));
-    const nextIndex = (currentIndex + 1) % tabs.length;
-    
-    tabs[nextIndex].click();
-}
-
-/**
- * 清空结果
- */
-function clearResult() {
-    document.getElementById('resultConsole').innerHTML = '<p class="console-prompt">>> 点击"运行代码"来执行你的程序</p>';
-    document.getElementById('resultStatus').className = 'result-status';
 }
 
 /**
  * 小熊挥手动画
  */
 function bearWave() {
-    // 播放移动音效
+    if (isAnimating) return;
+    
+    animate(bear, {
+        rotate: [0, -15, 15, -15, 15, 0],
+        scale: [1, 1.1, 1],
+        transition: {
+            duration: 1,
+            ease: 'easeInOut'
+        }
+    });
+    
+    // 播放问候语音
     if (window.audioManager) {
-        window.audioManager.playSound('bear-move');
+        window.audioManager.playSound('bear-greeting');
     }
     
-    gsap.to(bear, {
-        rotation: 15,
-        duration: 0.3,
-        yoyo: true,
-        repeat: 5,
-        ease: 'power2.inOut'
-    });
+    addConsoleOutput('🐻 小熊向你挥手问好！');
 }
 
 /**
  * 小熊跳舞动画
  */
 function bearDance() {
-    if (!checkGSAP()) return;
+    if (isAnimating) return;
     
-    // 播放点击音效
-    if (window.audioManager) {
-        window.audioManager.playSound('click');
-    }
+    const danceSequence = [
+        { rotate: -30, scale: 1.1 },
+        { rotate: 30, scale: 0.9 },
+        { rotate: -30, scale: 1.1 },
+        { rotate: 30, scale: 0.9 },
+        { rotate: 0, scale: 1 }
+    ];
     
-    const tl = gsap.timeline();
-    tl.to(bear, { y: -20, duration: 0.2, ease: 'power2.out' })
-      .to(bear, { y: 0, rotation: 360, duration: 0.4, ease: 'bounce.out' })
-      .to(bear, { rotation: 0, duration: 0.2 });
-    
-    addConsoleOutput('🐻 小熊很开心地跳了个舞！');
+    danceSequence.forEach((step, index) => {
+        setTimeout(() => {
+            animate(bear, {
+                ...step,
+                transition: {
+                    duration: 0.3,
+                    ease: 'easeInOut'
+                }
+            });
+        }, index * 300);
+    });
 }
 
 /**
- * 开始for循环动画
+ * 开始for循环动画 - 增强版
  */
 function startForLoopAnimation() {
     if (isAnimating) return;
-    if (!checkGSAP()) return;
     
     isAnimating = true;
     
@@ -999,65 +527,75 @@ function startForLoopAnimation() {
     // 禁用按钮
     startBtn.disabled = true;
     
-    // 创建动画时间轴
-    const tl = gsap.timeline({
-        onComplete: () => {
-            isAnimating = false;
-            startBtn.disabled = false;
-            addConsoleOutput('🎉 循环执行完毕！小熊吃饱了！');
-            celebrateAnimation();
+    // 创建动画序列
+    animateForLoop();
+}
+
+/**
+ * for循环动画序列
+ */
+async function animateForLoop() {
+    for (let index = 0; index < honeyJars.length; index++) {
+        const jar = honeyJars[index];
+        
+        // 添加控制台输出
+        addConsoleOutput(`小熊吃掉了第${index + 1}个蜂蜜罐 🍯`);
+        highlightCodeLine(index);
+        
+        // 小熊移动到蜂蜜罐位置 - 弹性动画
+        await animate(bear, {
+            x: jar.offsetLeft - 100
+        }, { duration: 0.8, ease: 'ease-out' });
+        
+        // 播放移动音效
+        if (window.audioManager) {
+            window.audioManager.playSound('bear-move');
         }
-    });
-    
-    // 为每个蜂蜜罐创建动画序列
-    honeyJars.forEach((jar, index) => {
-        tl.call(() => {
-            addConsoleOutput(`小熊吃掉了第${index + 1}个蜂蜜罐 🍯`);
-            highlightCodeLine(index);
-        })
-        .to(bear, { 
-            x: jar.offsetLeft - 100, 
-            duration: 0.8, 
-            ease: 'power2.inOut',
-            onStart: () => {
-                // 播放移动音效
-                if (window.audioManager) {
-                    window.audioManager.playSound('bear-move');
-                }
-            }
-        })
-        .to(bear, { 
-            rotation: 360, 
-            duration: 0.5, 
-            ease: 'power2.inOut' 
-        }, '-=0.2')
-        .to(jar, { 
-            scale: 0.5, 
-            opacity: 0.3, 
-            rotation: 180, 
-            duration: 0.5,
-            ease: 'back.in(1.7)'
-        }, '-=0.3')
-        .call(() => {
-            jar.classList.add('eaten');
-            createSparkleEffect(jar);
-        })
-        .to(bear, { rotation: 0, duration: 0.2 })
-        .to({}, { duration: 0.5 }); // 暂停
-    });
+        
+        // 小熊旋转 - 更流畅的动画
+        await animate(bear, {
+            rotate: 360,
+            scale: [1, 1.2, 1]
+        }, { duration: 0.6, ease: 'ease-out' });
+        
+        // 蜂蜜罐消失动画 - 更丰富的效果
+        await Promise.all([
+            animate(jar, {
+                scale: [1, 0.5, 0],
+                rotate: [0, 180, 360],
+                opacity: [1, 0.5, 0]
+            }, { duration: 0.8, ease: 'ease-in' }),
+            // 同时创建闪烁效果
+            createSparkleEffect(jar)
+        ]);
+        
+        jar.classList.add('eaten');
+        
+        // 小熊复位
+        await animate(bear, {
+            rotate: 0
+        }, { duration: 0.3 });
+        
+        // 短暂暂停
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
     
     // 小熊回到起始位置
-    tl.to(bear, { 
-        x: 0, 
-        duration: 1, 
-        ease: 'power2.inOut' 
-    });
+    await animate(bear, {
+        x: 0
+    }, { duration: 1, ease: 'ease-out' });
+    
+    // 动画完成
+    isAnimating = false;
+    startBtn.disabled = false;
+    addConsoleOutput('🎉 循环执行完毕！小熊吃饱了！');
+    celebrateAnimation();
 }
 
 /**
  * 单独吃蜂蜜动画（点击蜂蜜罐时触发）
  */
-function eatHoney(index) {
+async function eatHoney(index) {
     if (isAnimating) return;
     
     const jar = honeyJars[index];
@@ -1068,41 +606,42 @@ function eatHoney(index) {
         window.audioManager.playSound('honey-eat');
     }
     
-    const tl = gsap.timeline();
-    
-    tl.to(bear, { 
-        x: jar.offsetLeft - 100, 
-        duration: 0.6, 
-        ease: 'power2.inOut' 
-    })
-    .to(jar, { 
-        scale: 0.5, 
-        opacity: 0.3, 
-        rotation: 180, 
-        duration: 0.4,
-        ease: 'back.in(1.7)'
-    }, '-=0.2')
-    .call(() => {
-        jar.classList.add('eaten');
-        createSparkleEffect(jar);
-        addConsoleOutput(`🍯 小熊吃掉了一个蜂蜜罐！`);
-    })
-    .to(bear, { 
-        x: 0, 
-        duration: 0.6, 
-        ease: 'power2.inOut' 
+    // 小熊移动
+    await animate(bear, {
+        x: jar.offsetLeft - 100,
+        transition: {
+            type: 'spring',
+            stiffness: 150,
+            damping: 20,
+            duration: 0.6
+        }
     });
-}
-
-/**
- * 检查GSAP是否可用
- */
-function checkGSAP() {
-    if (typeof gsap === 'undefined') {
-        console.error('GSAP库未加载，请检查网络连接');
-        return false;
-    }
-    return true;
+    
+    // 蜂蜜罐消失
+    await animate(jar, {
+        scale: [1, 0.5, 0],
+        rotate: [0, 180, 360],
+        opacity: [1, 0.3, 0],
+        transition: {
+            duration: 0.6,
+            ease: 'backIn'
+        }
+    });
+    
+    jar.classList.add('eaten');
+    createSparkleEffect(jar);
+    addConsoleOutput(`🍯 小熊吃掉了一个蜂蜜罐！`);
+    
+    // 小熊回到起始位置
+    await animate(bear, {
+        x: 0,
+        transition: {
+            type: 'spring',
+            stiffness: 150,
+            damping: 20,
+            duration: 0.6
+        }
+    });
 }
 
 /**
@@ -1110,15 +649,32 @@ function checkGSAP() {
  */
 function resetAnimation() {
     if (isAnimating) return;
-    if (!checkGSAP()) return;
     
     // 重置小熊位置
-    gsap.set(bear, { x: 0, y: 0, rotation: 0 });
+    animate(bear, {
+        x: 0,
+        y: 0,
+        rotate: 0,
+        scale: 1,
+        transition: {
+            duration: 0.5,
+            ease: 'easeOut'
+        }
+    });
     
     // 重置蜂蜜罐状态
-    honeyJars.forEach(jar => {
+    honeyJars.forEach((jar, index) => {
         jar.classList.remove('eaten');
-        gsap.set(jar, { scale: 1, opacity: 1, rotation: 0 });
+        animate(jar, {
+            scale: [0, 1.2, 1],
+            opacity: [0, 1],
+            rotate: [180, 0],
+            transition: {
+                duration: 0.6,
+                delay: index * 0.1,
+                ease: 'backOut'
+            }
+        });
     });
     
     // 清空控制台
@@ -1134,51 +690,62 @@ function resetAnimation() {
  * 显示while循环课程
  */
 function showWhileLesson() {
-    const tl = gsap.timeline();
+    const forContent = document.querySelector('.lesson-content');
+    const whileContent = document.getElementById('whileLesson');
     
-    tl.to('.lesson-content, .output-area', { 
-        opacity: 0, 
-        y: -50, 
-        duration: 0.5 
-    })
-    .call(() => {
-        document.querySelector('.lesson-content').style.display = 'none';
-        document.querySelector('.output-area').style.display = 'none';
-        whileLesson.classList.remove('hidden');
-    })
-    .from(whileLesson, { 
-        opacity: 0, 
-        y: 50, 
-        duration: 0.8, 
-        ease: 'back.out(1.7)' 
-    });
-    
-    // 重置场景
-    resetWhileScene();
+    if (forContent && whileContent) {
+        // 隐藏for循环内容
+        animate(forContent, {
+            opacity: 0,
+            x: -50,
+            transition: {
+                duration: 0.5
+            }
+        }).then(() => {
+            forContent.style.display = 'none';
+            whileContent.classList.remove('hidden');
+            
+            // 显示while循环内容
+            animate(whileContent, {
+                opacity: [0, 1],
+                x: [50, 0],
+                transition: {
+                    duration: 0.5
+                }
+            });
+        });
+    }
 }
 
 /**
  * 显示for循环课程
  */
 function showForLesson() {
-    const tl = gsap.timeline();
+    const forContent = document.querySelector('.lesson-content');
+    const whileContent = document.getElementById('whileLesson');
     
-    tl.to(whileLesson, { 
-        opacity: 0, 
-        y: -50, 
-        duration: 0.5 
-    })
-    .call(() => {
-        whileLesson.classList.add('hidden');
-        document.querySelector('.lesson-content').style.display = 'grid';
-        document.querySelector('.output-area').style.display = 'block';
-    })
-    .to('.lesson-content, .output-area', { 
-        opacity: 1, 
-        y: 0, 
-        duration: 0.8, 
-        ease: 'back.out(1.7)' 
-    });
+    if (forContent && whileContent) {
+        // 隐藏while循环内容
+        animate(whileContent, {
+            opacity: 0,
+            x: 50,
+            transition: {
+                duration: 0.5
+            }
+        }).then(() => {
+            whileContent.classList.add('hidden');
+            forContent.style.display = 'flex';
+            
+            // 显示for循环内容
+            animate(forContent, {
+                opacity: [0, 1],
+                x: [-50, 0],
+                transition: {
+                    duration: 0.5
+                }
+            });
+        });
+    }
 }
 
 /**
@@ -1186,10 +753,8 @@ function showForLesson() {
  */
 function startWhileLoopAnimation() {
     if (isAnimating) return;
-    if (!checkGSAP()) return;
     
     isAnimating = true;
-    let honeyCount = 0;
     
     // 播放开始音效和语音解说
     if (window.audioManager) {
@@ -1199,60 +764,73 @@ function startWhileLoopAnimation() {
         }, 1000);
     }
     
-    // 清空控制台并添加while循环输出
+    let honeyCount = 0;
+    const maxHoney = 3;
+    
     clearConsole();
     addConsoleOutput('>>> 开始执行while循环...');
-    addConsoleOutput('honey_count = 0');
+    addConsoleOutput(`honey_count = ${honeyCount}`);
     
-    const tl = gsap.timeline({
-        onComplete: () => {
-            isAnimating = false;
-            addConsoleOutput('小熊终于吃饱了！😊');
-            celebrateAnimation();
-        }
-    });
+    startWhileBtn.disabled = true;
     
-    // while循环执行3次
-    for (let i = 0; i < 3; i++) {
-        tl.call(() => {
-            honeyCount++;
-            addConsoleOutput(`小熊找到了蜂蜜！现在有${honeyCount}个`);
-            addConsoleOutput(`honey_count += 1  # 现在 honey_count = ${honeyCount}`);
-        })
-        .to(bear, { 
-            x: Math.random() * 200 + 100, 
-            y: Math.random() * 50 - 25,
-            duration: 0.8, 
-            ease: 'power2.inOut' 
-        })
-        .call(() => {
-            createHoneyEffect();
-        })
-        .to(bear, { 
-            rotation: 360, 
-            duration: 0.5, 
-            ease: 'power2.inOut' 
-        }, '-=0.3')
-        .to(bear, { rotation: 0, duration: 0.2 })
-        .to({}, { duration: 0.8 }); // 暂停
-    }
-    
-    // 小熊回到起始位置
-    tl.to(bear, { 
-        x: 0, 
-        y: 0, 
-        duration: 1, 
-        ease: 'power2.inOut' 
-    });
+    animateWhileLoop(honeyCount, maxHoney);
 }
 
 /**
- * 重置while循环场景
+ * while循环动画序列
  */
-function resetWhileScene() {
-    gsap.set(bear, { x: 0, y: 0, rotation: 0 });
-    clearConsole();
-    addConsoleOutput('>>> 准备开始while循环演示！');
+async function animateWhileLoop(honeyCount, maxHoney) {
+    while (honeyCount < maxHoney) {
+        addConsoleOutput(`小熊找到了蜂蜜！现在有${honeyCount + 1}个`);
+        
+        // 创建新的蜂蜜罐
+        const newHoney = createHoneyEffect();
+        
+        // 小熊移动到新蜂蜜位置
+        await animate(bear, {
+            x: 200 + honeyCount * 100,
+            transition: {
+                type: 'spring',
+                stiffness: 100,
+                damping: 15,
+                duration: 0.8
+            }
+        });
+        
+        // 小熊收集蜂蜜
+        await animate(bear, {
+            rotate: 360,
+            scale: [1, 1.2, 1],
+            transition: {
+                duration: 0.6,
+                ease: 'backOut'
+            }
+        });
+        
+        honeyCount++;
+        addConsoleOutput(`honey_count = ${honeyCount}`);
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    
+    // while循环结束
+    addConsoleOutput('小熊终于吃饱了！😊');
+    
+    // 小熊回到起始位置
+    await animate(bear, {
+        x: 0,
+        rotate: 0,
+        transition: {
+            type: 'spring',
+            stiffness: 100,
+            damping: 15,
+            duration: 1
+        }
+    });
+    
+    isAnimating = false;
+    startWhileBtn.disabled = false;
+    celebrateAnimation();
 }
 
 /**
@@ -1260,304 +838,231 @@ function resetWhileScene() {
  */
 function createHoneyEffect() {
     const honey = document.createElement('div');
-    honey.textContent = '🍯';
+    honey.innerHTML = '🍯';
     honey.style.position = 'absolute';
-    honey.style.fontSize = '2em';
-    honey.style.left = bear.offsetLeft + 'px';
-    honey.style.top = bear.offsetTop + 'px';
-    honey.style.pointerEvents = 'none';
-    honey.style.zIndex = '5';
+    honey.style.fontSize = '3em';
+    honey.style.left = '200px';
+    honey.style.top = '50%';
+    honey.style.transform = 'translateY(-50%)';
     
     document.querySelector('.story-scene').appendChild(honey);
     
-    gsap.to(honey, {
-        y: -50,
-        opacity: 0,
-        scale: 1.5,
-        duration: 1,
-        ease: 'power2.out',
-        onComplete: () => {
-            honey.remove();
+    // 蜂蜜出现动画
+    animate(honey, {
+        scale: [0, 1.3, 1],
+        rotate: [0, 360],
+        transition: {
+            duration: 0.8,
+            ease: 'backOut'
         }
     });
+    
+    return honey;
 }
 
 /**
  * 创建闪烁效果
  */
 function createSparkleEffect(element) {
-    const sparkles = ['✨', '⭐', '💫', '🌟'];
+    const sparkles = ['✨', '⭐', '🌟', '💫'];
+    const rect = element.getBoundingClientRect();
     
-    for (let i = 0; i < 3; i++) {
-        setTimeout(() => {
-            const sparkle = document.createElement('div');
-            sparkle.textContent = sparkles[Math.floor(Math.random() * sparkles.length)];
-            sparkle.style.position = 'absolute';
-            sparkle.style.left = element.offsetLeft + Math.random() * 50 + 'px';
-            sparkle.style.top = element.offsetTop + Math.random() * 50 + 'px';
-            sparkle.style.fontSize = '1.5em';
-            sparkle.style.pointerEvents = 'none';
-            sparkle.style.zIndex = '10';
-            
-            document.querySelector('.story-scene').appendChild(sparkle);
-            
-            gsap.to(sparkle, {
-                y: -30,
-                opacity: 0,
-                scale: 1.5,
-                rotation: 360,
-                duration: 1,
-                ease: 'power2.out',
-                onComplete: () => {
-                    sparkle.remove();
-                }
-            });
-        }, i * 200);
+    for (let i = 0; i < 5; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.textContent = sparkles[Math.floor(Math.random() * sparkles.length)];
+        sparkle.style.position = 'fixed';
+        sparkle.style.left = rect.left + rect.width / 2 + 'px';
+        sparkle.style.top = rect.top + rect.height / 2 + 'px';
+        sparkle.style.fontSize = '1.5em';
+        sparkle.style.pointerEvents = 'none';
+        sparkle.style.zIndex = '1000';
+        
+        document.body.appendChild(sparkle);
+        
+        const angle = (Math.PI * 2 * i) / 5;
+        const distance = 50 + Math.random() * 50;
+        
+        animate(sparkle, {
+            x: Math.cos(angle) * distance,
+            y: Math.sin(angle) * distance,
+            scale: [0, 1, 0],
+            rotate: [0, 360],
+            opacity: [1, 1, 0],
+            transition: {
+                duration: 1.5,
+                ease: 'easeOut'
+            }
+        }).then(() => {
+            sparkle.remove();
+        });
     }
-}
-
-/**
- * 庆祝动画
- */
-function celebrateAnimation() {
-    const tl = gsap.timeline();
-    
-    // 小熊庆祝动画
-    tl.to(bear, {
-        y: -30,
-        rotation: 360,
-        scale: 1.2,
-        duration: 0.6,
-        ease: 'back.out(1.7)'
-    })
-    .to(bear, {
-        y: 0,
-        rotation: 0,
-        scale: 1,
-        duration: 0.4,
-        ease: 'bounce.out'
-    });
-    
-    // 创建庆祝特效
-    for (let i = 0; i < 10; i++) {
-        setTimeout(() => {
-            createCelebrationEffect();
-        }, i * 100);
-    }
-}
-
-/**
- * 创建庆祝特效
- */
-function createCelebrationEffect() {
-    const effects = ['🎉', '🎊', '🌟', '✨', '🎈'];
-    const effect = document.createElement('div');
-    
-    effect.textContent = effects[Math.floor(Math.random() * effects.length)];
-    effect.style.position = 'fixed';
-    effect.style.left = Math.random() * window.innerWidth + 'px';
-    effect.style.top = '0px';
-    effect.style.fontSize = '2em';
-    effect.style.pointerEvents = 'none';
-    effect.style.zIndex = '1000';
-    
-    document.body.appendChild(effect);
-    
-    gsap.to(effect, {
-        y: window.innerHeight,
-        rotation: 360,
-        duration: 3,
-        ease: 'power2.in',
-        onComplete: () => {
-            effect.remove();
-        }
-    });
 }
 
 /**
  * 高亮代码行
  */
 function highlightCodeLine(lineIndex) {
-    // 这里可以添加代码高亮逻辑
     const codeBlock = document.getElementById('codeBlock');
-    const lines = codeBlock.textContent.split('\n');
+    if (!codeBlock) return;
     
-    // 简单的高亮效果
-    gsap.to(codeBlock, {
-        backgroundColor: '#3498DB',
-        duration: 0.3,
-        yoyo: true,
-        repeat: 1,
-        ease: 'power2.inOut'
-    });
+    // 移除之前的高亮
+    const previousHighlight = codeBlock.querySelector('.highlight-line');
+    if (previousHighlight) {
+        previousHighlight.classList.remove('highlight-line');
+    }
+    
+    // 添加新的高亮（这里简化处理）
+    const lines = codeBlock.textContent.split('\n');
+    const targetLine = lines.find(line => line.includes('print'));
+    if (targetLine) {
+        // 创建高亮效果
+        codeBlock.style.background = 'linear-gradient(90deg, #fff3cd 0%, #fff3cd 100%)';
+        setTimeout(() => {
+            codeBlock.style.background = '';
+        }, 1000);
+    }
 }
 
 /**
  * 添加控制台输出
  */
 function addConsoleOutput(text) {
-    const output = document.createElement('p');
-    output.className = 'console-output';
-    output.textContent = text;
-    consoleElement.appendChild(output);
+    if (!consoleElement) return;
+    
+    const outputLine = document.createElement('p');
+    outputLine.textContent = text;
+    outputLine.style.margin = '5px 0';
+    outputLine.style.opacity = '0';
+    
+    consoleElement.appendChild(outputLine);
+    
+    // 输出动画
+    animate(outputLine, {
+        opacity: [0, 1],
+        x: [-20, 0],
+        transition: {
+            duration: 0.5,
+            ease: 'easeOut'
+        }
+    });
     
     // 自动滚动到底部
     consoleElement.scrollTop = consoleElement.scrollHeight;
-    
-    // 添加打字机效果
-    gsap.from(output, {
-        opacity: 0,
-        x: -20,
-        duration: 0.5,
-        ease: 'power2.out'
-    });
 }
 
 /**
  * 清空控制台
  */
 function clearConsole() {
-    consoleElement.innerHTML = '';
+    if (consoleElement) {
+        consoleElement.innerHTML = '';
+    }
 }
 
-/**
- * 播放课程介绍语音
- */
+// 语音相关函数（保持原有功能）
 function speakIntroduction() {
-    if (!window.audioManager) return;
-    
-    const introTexts = [
-        "欢迎来到小熊学编程！",
-        "今天我们要学习Python的for循环。",
-        "for循环就像是给小熊制定一个重复做事情的计划。",
-        "比如说，小熊要把5个蜂蜜罐一个一个吃完。",
-        "点击开始按钮，让我们一起看看小熊是怎么做的吧！"
-    ];
-    
-    window.audioManager.speakQueue(introTexts);
+    if (window.speechSynthesis && window.audioManager && window.audioManager.isVoiceEnabled()) {
+        const text = '欢迎来到小熊学编程！今天我们要学习Python的循环语句。循环可以让我们重复执行相同的操作，就像小熊一个一个吃蜂蜜一样！';
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.8;
+        utterance.pitch = 1.2;
+        window.speechSynthesis.speak(utterance);
+    }
 }
 
-/**
- * 为动画添加语音解说
- */
 function speakForLoopExplanation() {
-    if (!window.audioManager) return;
-    
-    const explanationTexts = [
-        "现在小熊开始执行for循环了。",
-        "for i in range(5)的意思是，让i从0开始，一直到4。",
-        "每次循环，小熊都会走向一个蜂蜜罐，然后吃掉它。",
-        "这就是for循环的魅力，可以让我们重复执行相同的操作！"
-    ];
-    
-    window.audioManager.speakQueue(explanationTexts);
+    if (window.speechSynthesis && window.audioManager && window.audioManager.isVoiceEnabled()) {
+        const text = 'for循环可以让小熊按照指定的次数重复做事情。现在小熊要一个一个地吃掉所有的蜂蜜罐！';
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.8;
+        utterance.pitch = 1.2;
+        window.speechSynthesis.speak(utterance);
+    }
 }
 
-/**
- * 为while循环添加语音解说
- */
 function speakWhileLoopExplanation() {
-    if (!window.audioManager) return;
-    
-    const explanationTexts = [
-        "现在我们来学习while循环。",
-        "while循环会在条件为真的时候一直执行。",
-        "小熊会一直吃蜂蜜，直到没有蜂蜜为止。",
-        "这就是while循环的特点，根据条件来决定是否继续执行！"
-    ];
-    
-    window.audioManager.speakQueue(explanationTexts);
+    if (window.speechSynthesis && window.audioManager && window.audioManager.isVoiceEnabled()) {
+        const text = 'while循环会一直重复，直到条件不满足为止。小熊会一直找蜂蜜，直到找够指定的数量！';
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.8;
+        utterance.pitch = 1.2;
+        window.speechSynthesis.speak(utterance);
+    }
 }
 
-/**
- * 初始化语音设置
- */
+// 语音设置相关函数（保持原有功能）
 function initializeVoiceSettings() {
-    // 延迟初始化，确保语音已加载
-    setTimeout(() => {
-        if (window.audioManager) {
-            populateVoiceSelect();
-            updateVoiceInfo();
-        }
-    }, 1000);
+    if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = populateVoiceSelect;
+        populateVoiceSelect();
+    }
 }
 
-/**
- * 填充语音选择下拉框
- */
 function populateVoiceSelect() {
-    if (!window.audioManager || !voiceSelect) return;
+    if (!voiceSelect) return;
     
-    const chineseVoices = window.audioManager.getChineseVoices();
-    const allVoices = window.audioManager.speechSynthesis ? 
-        window.audioManager.speechSynthesis.getVoices() : [];
-    
-    // 清空现有选项
+    const voices = window.speechSynthesis.getVoices();
     voiceSelect.innerHTML = '';
     
-    // 添加中文语音组
+    // 优先显示中文语音
+    const chineseVoices = voices.filter(voice => 
+        voice.lang.includes('zh') || 
+        voice.name.includes('Chinese') || 
+        voice.name.includes('中文')
+    );
+    
+    const otherVoices = voices.filter(voice => 
+        !voice.lang.includes('zh') && 
+        !voice.name.includes('Chinese') && 
+        !voice.name.includes('中文')
+    );
+    
+    // 添加中文语音选项
     if (chineseVoices.length > 0) {
         const chineseGroup = document.createElement('optgroup');
         chineseGroup.label = '中文语音';
-        
         chineseVoices.forEach(voice => {
             const option = document.createElement('option');
             option.value = voice.name;
             option.textContent = `${voice.name} (${voice.lang})`;
-            if (window.audioManager.selectedVoice && 
-                voice.name === window.audioManager.selectedVoice.name) {
-                option.selected = true;
-            }
             chineseGroup.appendChild(option);
         });
-        
         voiceSelect.appendChild(chineseGroup);
+        
+        // 默认选择第一个中文语音
+        voiceSelect.value = chineseVoices[0].name;
     }
     
-    // 添加其他语音组
-    const otherVoices = allVoices.filter(voice => {
-        const lang = voice.lang.toLowerCase();
-        return !lang.includes('zh') && !lang.includes('cmn') && 
-               !lang.includes('chinese') && !voice.name.includes('Chinese');
-    });
-    
+    // 添加其他语音选项
     if (otherVoices.length > 0) {
         const otherGroup = document.createElement('optgroup');
         otherGroup.label = '其他语音';
-        
-        otherVoices.slice(0, 10).forEach(voice => { // 限制显示数量
+        otherVoices.forEach(voice => {
             const option = document.createElement('option');
             option.value = voice.name;
             option.textContent = `${voice.name} (${voice.lang})`;
             otherGroup.appendChild(option);
         });
-        
         voiceSelect.appendChild(otherGroup);
     }
+    
+    updateVoiceInfo();
 }
 
-/**
- * 更新语音信息显示
- */
 function updateVoiceInfo() {
-    if (!window.audioManager || !currentVoiceName || !currentVoiceLang) return;
+    if (!voiceSelect || !currentVoiceName || !currentVoiceLang) return;
     
-    const voice = window.audioManager.selectedVoice;
-    if (voice) {
-        currentVoiceName.textContent = voice.name;
-        currentVoiceLang.textContent = voice.lang;
-    } else {
-        currentVoiceName.textContent = '未选择';
-        currentVoiceLang.textContent = '-';
+    const selectedVoiceName = voiceSelect.value;
+    const voices = window.speechSynthesis.getVoices();
+    const selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
+    
+    if (selectedVoice) {
+        currentVoiceName.textContent = selectedVoice.name;
+        currentVoiceLang.textContent = selectedVoice.lang;
     }
 }
 
-/**
- * 切换语音设置面板显示
- */
 function toggleVoiceSettings() {
-    if (!voiceSettingsPanel) return;
-    
     if (voiceSettingsPanel.classList.contains('hidden')) {
         showVoiceSettings();
     } else {
@@ -1565,38 +1070,57 @@ function toggleVoiceSettings() {
     }
 }
 
-/**
- * 显示语音设置面板
- */
 function showVoiceSettings() {
-    if (!voiceSettingsPanel) return;
-    
     voiceSettingsPanel.classList.remove('hidden');
-    populateVoiceSelect();
-    updateVoiceInfo();
+    animate(voiceSettingsPanel, {
+        opacity: [0, 1],
+        scale: [0.8, 1],
+        transition: {
+            duration: 0.3,
+            ease: 'backOut'
+        }
+    });
 }
 
-/**
- * 隐藏语音设置面板
- */
 function hideVoiceSettings() {
-    if (!voiceSettingsPanel) return;
-    
-    voiceSettingsPanel.classList.add('hidden');
+    animate(voiceSettingsPanel, {
+        opacity: [1, 0],
+        scale: [1, 0.8],
+        transition: {
+            duration: 0.3,
+            ease: 'backIn'
+        }
+    }).then(() => {
+        voiceSettingsPanel.classList.add('hidden');
+    });
 }
 
-// 页面可见性变化时暂停/恢复动画
+// 练习功能相关（简化版本）
+function initializePractice() {
+    const practiceArea = document.getElementById('practiceArea');
+    if (practiceArea) {
+        practiceArea.classList.remove('hidden');
+        animate(practiceArea, {
+            opacity: [0, 1],
+            y: [50, 0],
+            transition: {
+                duration: 0.5,
+                ease: 'easeOut'
+            }
+        });
+    }
+}
+
+// 页面可见性变化处理
 document.addEventListener('visibilitychange', function() {
-    if (document.hidden) {
-        gsap.globalTimeline.pause();
-    } else {
-        gsap.globalTimeline.resume();
+    if (document.hidden && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
     }
 });
 
-// 窗口大小变化时重新计算位置
+// 窗口大小变化处理
 window.addEventListener('resize', function() {
-    if (!isAnimating) {
-        resetAnimation();
+    if (monacoEditor) {
+        monacoEditor.layout();
     }
 });

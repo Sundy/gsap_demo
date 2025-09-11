@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI文生视频互动课程 - 即梦AI探索之旅</title>
+    <link rel="stylesheet" href="ai-video-course.css">
+</head>
+<body>
+    <!-- 顶部标题区域 -->
+    <header class="header">
+        <div class="container">
+            <h1 class="title">AI文生视频互动课程</h1>
+            <p class="subtitle">探索即梦AI的神奇世界，从文本到视频的创意之旅</p>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 左侧交互区域 -->
+            <div class="left-panel">
+                <!-- 对比实验台 -->
+                <section class="comparison-lab">
+                    <h2 class="section-title">🧩 对比实验台</h2>
+                    <div class="prompt-input-area">
+                        <label for="base-prompt">基础提示词：</label>
+                        <textarea id="base-prompt" class="prompt-input" placeholder="A astronaut riding a horse on the moon, cinematic">A astronaut riding a horse on the moon, cinematic</textarea>
+                    </div>
+                    
+                    <div class="parameter-controls">
+                        <div class="control-group">
+                            <label>风格：</label>
+                            <div class="button-group">
+                                <button class="param-btn active" data-param="style" data-value="cinematic">电影风格</button>
+                                <button class="param-btn" data-param="style" data-value="anime">动漫风格</button>
+                                <button class="param-btn" data-param="style" data-value="realistic">写实风格</button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>主体：</label>
+                            <div class="button-group">
+                                <button class="param-btn active" data-param="subject" data-value="astronaut">宇航员</button>
+                                <button class="param-btn" data-param="subject" data-value="cat">猫咪</button>
+                                <button class="param-btn" data-param="subject" data-value="robot">机器人</button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>动作：</label>
+                            <div class="button-group">
+                                <button class="param-btn active" data-param="action" data-value="riding">骑行</button>
+                                <button class="param-btn" data-param="action" data-value="dancing">跳舞</button>
+                                <button class="param-btn" data-param="action" data-value="flying">飞行</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="generate-btn" id="generate-comparison">🎬 生成对比视频</button>
+                </section>
+
+                <!-- 参数调节器 -->
+                <section class="parameter-playground">
+                    <h2 class="section-title">📊 参数调节器</h2>
+                    <div class="slider-controls">
+                        <div class="slider-group">
+                            <label for="motion-strength">运动强度：</label>
+                            <input type="range" id="motion-strength" class="slider" min="0" max="100" value="50">
+                            <span class="slider-value">50%</span>
+                        </div>
+                        
+                        <div class="slider-group">
+                            <label for="consistency">画面一致性：</label>
+                            <input type="range" id="consistency" class="slider" min="0" max="100" value="75">
+                            <span class="slider-value">75%</span>
+                        </div>
+                        
+                        <div class="slider-group">
+                            <label for="creativity">创意程度：</label>
+                            <input type="range" id="creativity" class="slider" min="0" max="100" value="60">
+                            <span class="slider-value">60%</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 右侧视频播放区域 -->
+            <div class="right-panel">
+                <section class="video-display">
+                    <h2 class="section-title">🎥 视频预览</h2>
+                    <div class="video-container">
+                        <div class="video-comparison">
+                            <div class="video-item">
+                                <h3>原始版本</h3>
+                                <div class="video-placeholder" id="video-original">
+                                    <div class="placeholder-content">
+                                        <div class="play-icon">▶</div>
+                                        <p>点击生成对比查看效果</p>
+                                    </div>
+                                </div>
+                                <div class="video-info">
+                                    <span class="prompt-display" id="original-prompt">A astronaut riding a horse on the moon, cinematic</span>
+                                </div>
+                            </div>
+                            
+                            <div class="video-item">
+                                <h3>修改版本</h3>
+                                <div class="video-placeholder" id="video-modified">
+                                    <div class="placeholder-content">
+                                        <div class="play-icon">▶</div>
+                                        <p>选择参数后生成</p>
+                                    </div>
+                                </div>
+                                <div class="video-info">
+                                    <span class="prompt-display" id="modified-prompt">修改后的提示词将显示在这里</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 参数效果高亮区域 -->
+                        <div class="highlight-overlay" id="highlight-overlay"></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- 底部流程图区域 -->
+        <section class="process-mapper">
+            <div class="container">
+                <h2 class="section-title">🎮 AI生成流程拆解</h2>
+                <div class="process-flow">
+                    <div class="process-step" data-step="1">
+                        <div class="step-icon">📝</div>
+                        <h3>文本输入</h3>
+                        <p>输入创意提示词</p>
+                    </div>
+                    
+                    <div class="process-arrow">→</div>
+                    
+                    <div class="process-step" data-step="2">
+                        <div class="step-icon">🧠</div>
+                        <h3>文本编码</h3>
+                        <p>AI理解语义含义</p>
+                    </div>
+                    
+                    <div class="process-arrow">→</div>
+                    
+                    <div class="process-step" data-step="3">
+                        <div class="step-icon">🌊</div>
+                        <h3>扩散生成</h3>
+                        <p>从噪声到图像</p>
+                    </div>
+                    
+                    <div class="process-arrow">→</div>
+                    
+                    <div class="process-step" data-step="4">
+                        <div class="step-icon">🎬</div>
+                        <h3>视频合成</h3>
+                        <p>生成连续帧序列</p>
+                    </div>
+                    
+                    <div class="process-arrow">→</div>
+                    
+                    <div class="process-step" data-step="5">
+                        <div class="step-icon">✨</div>
+                        <h3>输出优化</h3>
+                        <p>最终视频呈现</p>
+                    </div>
+                </div>
+                
+                <!-- 流程详解面板 -->
+                <div class="process-detail" id="process-detail">
+                    <div class="detail-content">
+                        <h3 id="detail-title">点击上方步骤查看详细说明</h3>
+                        <div id="detail-animation" class="detail-animation"></div>
+                        <p id="detail-description">选择任意步骤，了解AI文生视频的神奇过程</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 创意激发器浮动按钮 -->
+    <div class="idea-spark" id="idea-spark">
+        <button class="spark-btn" id="spark-btn">
+            <span class="spark-icon">✨</span>
+            <span class="spark-text">灵感生成器</span>
+        </button>
+        
+        <!-- 灵感面板 -->
+        <div class="spark-panel" id="spark-panel">
+            <h3>🎲 随机创意生成</h3>
+            <div class="idea-slots">
+                <div class="slot" id="subject-slot">
+                    <label>主体</label>
+                    <div class="slot-content">点击生成</div>
+                </div>
+                <div class="slot" id="action-slot">
+                    <label>动作</label>
+                    <div class="slot-content">点击生成</div>
+                </div>
+                <div class="slot" id="scene-slot">
+                    <label>场景</label>
+                    <div class="slot-content">点击生成</div>
+                </div>
+                <div class="slot" id="style-slot">
+                    <label>风格</label>
+                    <div class="slot-content">点击生成</div>
+                </div>
+            </div>
+            <button class="random-btn" id="random-generate">🎰 随机生成创意</button>
+            <button class="apply-btn" id="apply-idea">📝 应用到实验台</button>
+        </div>
+    </div>
+
+    <script src="ai-video-course.js"></script>
+</body>
+</html>

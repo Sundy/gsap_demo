@@ -5,21 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>小熊学编程 - Python循环大冒险</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" crossorigin="anonymous"></script>
+    <!-- 使用Web Animations API替代Framer Motion -->
     <script>
-        // 检查GSAP是否加载成功
-        window.addEventListener('load', function() {
-            if (typeof gsap === 'undefined') {
-                console.error('GSAP库加载失败，尝试备用CDN');
-                // 备用CDN
-                const script = document.createElement('script');
-                script.src = 'https://unpkg.com/gsap@3.12.2/dist/gsap.min.js';
-                script.crossOrigin = 'anonymous';
-                document.head.appendChild(script);
-            } else {
-                console.log('GSAP库加载成功');
-            }
-        });
+        // Web Animations API polyfill for older browsers
+        if (!Element.prototype.animate) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/web-animations-js@2.3.2/web-animations.min.js';
+            document.head.appendChild(script);
+        }
     </script>
     <!-- Monaco Editor CDN -->
     <script src="https://unpkg.com/monaco-editor@0.44.0/min/vs/loader.js"></script>
@@ -87,7 +80,7 @@
             </div>
         </div>
 
-        <!-- 课程内容区域 -->
+        <!-- 课程内容区域 - 单列布局 -->
         <div class="lesson-content">
             <!-- 故事文本 -->
             <div class="story-text" id="storyText">
@@ -137,13 +130,7 @@ for i in range(5):  # i会依次变成 0, 1, 2, 3, 4
             </div>
         </div>
 
-        <!-- 输出区域 -->
-        <div class="output-area" id="outputArea">
-            <h3>🖥️ 程序输出</h3>
-            <div class="console" id="console">
-                <p class="console-prompt">>>> 点击"开始动画"看看会发生什么！</p>
-            </div>
-        </div>
+
 
         <!-- 在线编程练习区域（隐藏） -->
         <div class="practice-area hidden" id="practiceArea">
