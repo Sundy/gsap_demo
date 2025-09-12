@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>键盘指法练习课程</title>
+    <link rel="stylesheet" href="typing-course.css">
+</head>
+<body>
+    <!-- 页面头部 -->
+    <header class="header">
+        <div class="container">
+            <h1 class="title">⌨️ 键盘指法练习课程</h1>
+            <p class="subtitle">掌握正确指法，提升打字速度</p>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 导航标签 -->
+            <nav class="tab-nav">
+                <button class="tab-btn active" data-tab="tutorial">📚 指法教学</button>
+                <button class="tab-btn" data-tab="practice">🎮 练习模式</button>
+                <button class="tab-btn" data-tab="game">🏆 游戏挑战</button>
+            </nav>
+
+            <!-- 指法教学模块 -->
+            <section class="tab-content active" id="tutorial">
+                <div class="tutorial-section">
+                    <h2>键盘分区与手指对应</h2>
+                    
+                    <!-- 手指颜色说明 -->
+                    <div class="finger-guide">
+                        <h3>手指颜色编码</h3>
+                        <div class="finger-colors">
+                            <div class="finger-item">
+                                <div class="finger-color left-pinky"></div>
+                                <span>左小指</span>
+                            </div>
+                            <div class="finger-item">
+                                <div class="finger-color left-ring"></div>
+                                <span>左无名指</span>
+                            </div>
+                            <div class="finger-item">
+                                <div class="finger-color left-middle"></div>
+                                <span>左中指</span>
+                            </div>
+                            <div class="finger-item">
+                                <div class="finger-color left-index"></div>
+                                <span>左食指</span>
+                            </div>
+                            <div class="finger-item">
+                                <div class="finger-color thumb"></div>
+                                <span>拇指</span>
+                            </div>
+                            <div class="finger-item">
+                                <div class="finger-color right-index"></div>
+                                <span>右食指</span>
+                            </div>
+                            <div class="finger-item">
+                                <div class="finger-color right-middle"></div>
+                                <span>右中指</span>
+                            </div>
+                            <div class="finger-item">
+                                <div class="finger-color right-ring"></div>
+                                <span>右无名指</span>
+                            </div>
+                            <div class="finger-item">
+                                <div class="finger-color right-pinky"></div>
+                                <span>右小指</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 虚拟键盘 -->
+                    <div class="keyboard-container">
+                        <h3>标准键盘布局</h3>
+                        <div class="virtual-keyboard">
+                            <!-- 数字行 -->
+                            <div class="keyboard-row">
+                                <div class="key" data-finger="left-pinky">`</div>
+                                <div class="key" data-finger="left-pinky">1</div>
+                                <div class="key" data-finger="left-ring">2</div>
+                                <div class="key" data-finger="left-middle">3</div>
+                                <div class="key" data-finger="left-index">4</div>
+                                <div class="key" data-finger="left-index">5</div>
+                                <div class="key" data-finger="right-index">6</div>
+                                <div class="key" data-finger="right-index">7</div>
+                                <div class="key" data-finger="right-middle">8</div>
+                                <div class="key" data-finger="right-ring">9</div>
+                                <div class="key" data-finger="right-pinky">0</div>
+                                <div class="key" data-finger="right-pinky">-</div>
+                                <div class="key" data-finger="right-pinky">=</div>
+                                <div class="key wide" data-finger="right-pinky">Backspace</div>
+                            </div>
+                            
+                            <!-- 字母行1 -->
+                            <div class="keyboard-row">
+                                <div class="key wide" data-finger="left-pinky">Tab</div>
+                                <div class="key" data-finger="left-pinky">Q</div>
+                                <div class="key" data-finger="left-ring">W</div>
+                                <div class="key" data-finger="left-middle">E</div>
+                                <div class="key" data-finger="left-index">R</div>
+                                <div class="key" data-finger="left-index">T</div>
+                                <div class="key" data-finger="right-index">Y</div>
+                                <div class="key" data-finger="right-index">U</div>
+                                <div class="key" data-finger="right-middle">I</div>
+                                <div class="key" data-finger="right-ring">O</div>
+                                <div class="key" data-finger="right-pinky">P</div>
+                                <div class="key" data-finger="right-pinky">[</div>
+                                <div class="key" data-finger="right-pinky">]</div>
+                                <div class="key wide" data-finger="right-pinky">\</div>
+                            </div>
+                            
+                            <!-- 字母行2 (基准行) -->
+                            <div class="keyboard-row">
+                                <div class="key extra-wide" data-finger="left-pinky">Caps Lock</div>
+                                <div class="key home-key" data-finger="left-pinky">A</div>
+                                <div class="key home-key" data-finger="left-ring">S</div>
+                                <div class="key home-key" data-finger="left-middle">D</div>
+                                <div class="key home-key" data-finger="left-index">F</div>
+                                <div class="key" data-finger="left-index">G</div>
+                                <div class="key" data-finger="right-index">H</div>
+                                <div class="key home-key" data-finger="right-index">J</div>
+                                <div class="key home-key" data-finger="right-middle">K</div>
+                                <div class="key home-key" data-finger="right-ring">L</div>
+                                <div class="key home-key" data-finger="right-pinky">;</div>
+                                <div class="key" data-finger="right-pinky">'</div>
+                                <div class="key extra-wide" data-finger="right-pinky">Enter</div>
+                            </div>
+                            
+                            <!-- 字母行3 -->
+                            <div class="keyboard-row">
+                                <div class="key extra-wide" data-finger="left-pinky">Shift</div>
+                                <div class="key" data-finger="left-pinky">Z</div>
+                                <div class="key" data-finger="left-ring">X</div>
+                                <div class="key" data-finger="left-middle">C</div>
+                                <div class="key" data-finger="left-index">V</div>
+                                <div class="key" data-finger="left-index">B</div>
+                                <div class="key" data-finger="right-index">N</div>
+                                <div class="key" data-finger="right-index">M</div>
+                                <div class="key" data-finger="right-middle">,</div>
+                                <div class="key" data-finger="right-ring">.</div>
+                                <div class="key" data-finger="right-pinky">/</div>
+                                <div class="key extra-wide" data-finger="right-pinky">Shift</div>
+                            </div>
+                            
+                            <!-- 空格行 -->
+                            <div class="keyboard-row">
+                                <div class="key" data-finger="left-pinky">Ctrl</div>
+                                <div class="key" data-finger="left-pinky">Win</div>
+                                <div class="key" data-finger="left-pinky">Alt</div>
+                                <div class="key spacebar" data-finger="thumb">Space</div>
+                                <div class="key" data-finger="right-pinky">Alt</div>
+                                <div class="key" data-finger="right-pinky">Win</div>
+                                <div class="key" data-finger="right-pinky">Menu</div>
+                                <div class="key" data-finger="right-pinky">Ctrl</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 基准键位说明 -->
+                    <div class="home-position">
+                        <h3>基准键位 (Home Row)</h3>
+                        <p>将左手四指放在 <strong>A S D F</strong> 键上，右手四指放在 <strong>J K L ;</strong> 键上。</p>
+                        <p>F 和 J 键上有小凸点，帮助您找到正确位置。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 练习模式 -->
+            <section class="tab-content" id="practice">
+                <div class="practice-section">
+                    <h2>分级练习</h2>
+                    
+                    <!-- 难度选择 -->
+                    <div class="difficulty-selector">
+                        <button class="difficulty-btn active" data-level="letters">字母练习</button>
+                        <button class="difficulty-btn" data-level="words">单词练习</button>
+                        <button class="difficulty-btn" data-level="sentences">句子练习</button>
+                    </div>
+
+                    <!-- 练习区域 -->
+                    <div class="practice-area">
+                        <div class="text-display">
+                            <div class="target-text" id="targetText">asdf jkl;</div>
+                        </div>
+                        
+                        <div class="input-area">
+                            <input type="text" id="practiceInput" placeholder="开始输入..." autocomplete="off">
+                        </div>
+                        
+                        <div class="practice-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">速度</span>
+                                <span class="stat-value" id="wpm">0</span>
+                                <span class="stat-unit">WPM</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">准确率</span>
+                                <span class="stat-value" id="accuracy">100</span>
+                                <span class="stat-unit">%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">进度</span>
+                                <span class="stat-value" id="progress">0</span>
+                                <span class="stat-unit">%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="practice-controls">
+                            <button class="btn-primary" id="startPractice">开始练习</button>
+                            <button class="btn-secondary" id="resetPractice">重新开始</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 游戏挑战 -->
+            <section class="tab-content" id="game">
+                <div class="game-section">
+                    <h2>游戏挑战</h2>
+                    
+                    <!-- 游戏模式选择 -->
+                    <div class="game-modes">
+                        <div class="game-mode-card" data-mode="speed">
+                            <h3>⚡ 速度挑战</h3>
+                            <p>在限定时间内打出尽可能多的字符</p>
+                        </div>
+                        <div class="game-mode-card" data-mode="accuracy">
+                            <h3>🎯 精准挑战</h3>
+                            <p>追求100%准确率，错误会扣分</p>
+                        </div>
+                        <div class="game-mode-card" data-mode="survival">
+                            <h3>🔥 生存模式</h3>
+                            <p>连续错误会结束游戏</p>
+                        </div>
+                    </div>
+
+                    <!-- 游戏区域 -->
+                    <div class="game-area" style="display: none;">
+                        <div class="game-header">
+                            <div class="game-timer">
+                                <span class="timer-label">时间</span>
+                                <span class="timer-value" id="gameTimer">60</span>
+                            </div>
+                            <div class="game-score">
+                                <span class="score-label">得分</span>
+                                <span class="score-value" id="gameScore">0</span>
+                            </div>
+                            <div class="game-lives">
+                                <span class="lives-label">生命</span>
+                                <span class="lives-value" id="gameLives">❤️❤️❤️</span>
+                            </div>
+                        </div>
+                        
+                        <div class="game-text-display">
+                            <div class="falling-text" id="fallingText"></div>
+                        </div>
+                        
+                        <div class="game-input">
+                            <input type="text" id="gameInput" placeholder="输入出现的文字..." autocomplete="off">
+                        </div>
+                        
+                        <div class="game-controls">
+                            <button class="btn-primary" id="startGame">开始游戏</button>
+                            <button class="btn-secondary" id="pauseGame">暂停</button>
+                            <button class="btn-secondary" id="endGame">结束</button>
+                        </div>
+                    </div>
+
+                    <!-- 成就系统 -->
+                    <div class="achievements">
+                        <h3>🏆 成就系统</h3>
+                        <div class="achievement-grid">
+                            <div class="achievement-item locked" data-achievement="first-practice">
+                                <div class="achievement-icon">🎯</div>
+                                <div class="achievement-info">
+                                    <h4>初次尝试</h4>
+                                    <p>完成第一次练习</p>
+                                </div>
+                            </div>
+                            <div class="achievement-item locked" data-achievement="speed-demon">
+                                <div class="achievement-icon">⚡</div>
+                                <div class="achievement-info">
+                                    <h4>速度恶魔</h4>
+                                    <p>达到50 WPM</p>
+                                </div>
+                            </div>
+                            <div class="achievement-item locked" data-achievement="perfect-accuracy">
+                                <div class="achievement-icon">💯</div>
+                                <div class="achievement-info">
+                                    <h4>完美精准</h4>
+                                    <p>保持100%准确率完成练习</p>
+                                </div>
+                            </div>
+                            <div class="achievement-item locked" data-achievement="marathon">
+                                <div class="achievement-icon">🏃</div>
+                                <div class="achievement-info">
+                                    <h4>马拉松选手</h4>
+                                    <p>连续练习30分钟</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 浮动提示 -->
+    <div class="floating-tips" id="floatingTips">
+        <div class="tip-content">
+            <span class="tip-text">保持正确坐姿，手指轻放在键盘上</span>
+            <button class="tip-close">&times;</button>
+        </div>
+    </div>
+
+    <script src="typing-course.js"></script>
+</body>
+</html>
